@@ -1,0 +1,8 @@
+uvicorn==0.16.0
+fastapi==0.70.1
+python-dotenv==0.20.0
+pydantic==1.8.2
+passlib==1.7.4
+PyJWT==2.4.0
+mysqlclient==2.1.1
+python-multipart==0.0.5
