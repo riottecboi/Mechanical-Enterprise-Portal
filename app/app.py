@@ -12,7 +12,7 @@ from app.utils import logger
 models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI(
-        title='Mechanical Enterprise Portal',
+        title='Mechanical Enterprise Portal API',
         description='powered by gunicorn-unicorn-fastapi',
         version='1.0.0'
     )
