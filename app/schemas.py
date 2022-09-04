@@ -1,24 +1,15 @@
 from pydantic import BaseModel, Field
-from typing import Union, Any
+from typing import Union
 from uuid import UUID
 
-class TokenSubject(BaseModel):
-    subject: Union[str, Any]
-
-class TokenSchema(BaseModel):
-    access_token: str
-
-class TokenPayload(BaseModel):
-    sub: str = None
-    exp: int = None
+class NotFound(BaseModel):
+    reason: str
 
 class UserAuth(BaseModel):
-    msnv: int = Field(..., description="Employee ID")
+    username: Union[int, str] = Field(..., description="Employee ID")
     password: str = Field(..., min_length=5, max_length=24, description="Employee password")
 
 class UserOut(BaseModel):
-    apikey: UUID
-    msnv: str
-
-class SystemUser(UserOut):
-    password: str
+    apikey: Union[UUID, None]
+    username: Union[str, None]
+    message: Union[str, None]
