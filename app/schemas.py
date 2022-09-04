@@ -17,7 +17,7 @@ class UserAuth(BaseModel):
     password: str = Field(..., min_length=5, max_length=24, description="Employee password")
 
 class UserOut(BaseModel):
-    id: UUID
+    apikey: UUID
     msnv: str
 
 class SystemUser(UserOut):
