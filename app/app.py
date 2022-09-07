@@ -66,6 +66,10 @@ async def login(form_data: UserAuth, response: Response,  db: Session = Depends(
     if user is None:
         logger.info("User not found")
         return {'message': 'User not found'}
+    if user.authenticated is not True:
+        logger.info("Unauthorized user")
+        response.status_code = 401
+        return {'message': 'Unauthorized user'}
 
     hashed_pass = user.hashed
     if not verify_password(form_data.password, hashed_pass):
@@ -74,7 +78,7 @@ async def login(form_data: UserAuth, response: Response,  db: Session = Depends(
         return {'message': 'Incorrect Username or Password'}
 
     logger.info("Getting user successful")
-    return {'apikey': user.apikey, 'username': form_data.username, 'message': 'Login successful'}
+    return {'apikey': user.apikey, 'username': form_data.username, 'is_admin': user.is_admin, 'is_edit': user.is_edit, 'is_view': user.is_view, 'message': 'Login successful'}
 
 @app.get('/me', summary='Get details of currently logged in user', dependencies=[Security(fastapi_apikeyauth)], response_model=UserOut)
 async def get_me(username: int, response: Response, db: Session = Depends(get_db)):

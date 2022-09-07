@@ -12,4 +12,7 @@ class UserAuth(BaseModel):
 class UserOut(BaseModel):
     apikey: Union[UUID, None]
     username: Union[str, None]
+    is_admin: Union[bool, None]
+    is_edit: Union[bool, None]
+    is_view: Union[bool, None]
     message: Union[str, None]
