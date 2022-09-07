@@ -64,6 +64,7 @@ async def login(form_data: UserAuth, response: Response,  db: Session = Depends(
     user, status_code = crud.get_user(db, form_data.username)
     response.status_code = status_code
     if user is None:
+        logger.info("User not found")
         return {'message': 'User not found'}
 
     hashed_pass = user.hashed
@@ -72,6 +73,7 @@ async def login(form_data: UserAuth, response: Response,  db: Session = Depends(
         response.status_code = 400
         return {'message': 'Incorrect Username or Password'}
 
+    logger.info("Getting user successful")
     return {'apikey': user.apikey, 'username': form_data.username, 'message': 'Login successful'}
 
 @app.get('/me', summary='Get details of currently logged in user', dependencies=[Security(fastapi_apikeyauth)], response_model=UserOut)
