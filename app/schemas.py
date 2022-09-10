@@ -1,5 +1,5 @@
 from pydantic import BaseModel, Field
-from typing import Union
+from typing import Union, List, Dict
 from uuid import UUID
 
 class NotFound(BaseModel):
@@ -11,8 +11,17 @@ class UserAuth(BaseModel):
 
 class UserOut(BaseModel):
     apikey: Union[UUID, None]
-    username: Union[str, None]
+    username: Union[int, None]
     is_admin: Union[bool, None]
     is_edit: Union[bool, None]
     is_view: Union[bool, None]
     message: Union[str, None]
+    tmpPWD: Union[str, None]
+
+
+class UserCreated(BaseModel):
+    list_pwd: Union[List[UserOut], None] = []
+
+class UserTable(BaseModel):
+    table_name: str
+    status: bool

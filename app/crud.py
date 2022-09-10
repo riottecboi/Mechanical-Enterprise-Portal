@@ -43,7 +43,7 @@ def apikeyauth(db: Session, apikey: str):
         db.rollback()
         return None, 404
 
-def create_table(table_name: str):
+def create_user_table(table_name: str):
     try:
         insert = lambda _dict, obj, pos: {k: v for k, v in (list(_dict.items())[:pos] +
                                                             list(obj.items()) +
@@ -103,15 +103,18 @@ def insert_user_table(table_name: str, data: dict, db: Session, userInfo : dict)
         connection.commit()
         cursor.close()
 
-        user = UserLogin(msnv=data['msnv'], userId=data['tt'], apikey=userInfo['apikey'],
+        user = UserLogin(msnv=data['msnv'], userId=data['tt'], apikey=userInfo['apikey'], tmp_password=userInfo['tmp_password'],
                          hashed=userInfo['hashed'], authenticated=True)
         db.add(user)
         db.commit()
         db.refresh(user)
+        logger.info(f"New user: {data['msnv']} is created")
+        logger.info(f"{table_name} table is updated\n")
 
-        logger.info(f'{table_name} table is updated')
+        resp = {'apikey': user.apikey, 'username': user.msnv, 'is_admin': user.is_admin, 'is_edit': user.is_edit,
+                'is_view': user.is_view, 'message': 'Create user successful', 'tmpPWD': user.tmp_password}
 
-        return {'apikey': user.apikey, 'username': user.msnv}, 200
+        return resp, 200
 
     except Exception as e:
         logger.info("Exception occurred: {}".format(str(e)))
@@ -119,7 +122,7 @@ def insert_user_table(table_name: str, data: dict, db: Session, userInfo : dict)
         return {}, 400
 
 
-#create_table('U')
+create_user_table('U')
 # datas = extracted_excel_file('/home/tranvinhliem/PycharmProjects/Mechanical-Enterprise-Portal/Example.xlsx', mapping)
 # for data in datas:
 #     logger.info('UPDATED for msnv: {}'.format(data['msnv']))

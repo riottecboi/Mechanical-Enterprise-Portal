@@ -7,6 +7,7 @@ class UserLogin(Base):
     userId = Column(Integer)
     msnv = Column(Integer)
     apikey = Column(String(64))
+    tmp_password = Column(String(128), unique=True)
     hashed = Column(String(128), unique=True)
     authenticated = Column(Boolean, default=False)
     is_admin = Column(Boolean, default=False)

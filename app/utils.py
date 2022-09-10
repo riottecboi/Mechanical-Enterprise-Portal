@@ -1,6 +1,7 @@
 from passlib.context import CryptContext
 import logging
 import sys
+import secrets
 import pandas as pd
 import numpy as np
 
@@ -15,6 +16,10 @@ if not logger.handlers:
     logger.addHandler(ch)
 
 pwd_context = CryptContext(schemes=['bcrypt'])
+
+def generate_random_password():
+    passwordString = secrets.token_hex()
+    return passwordString
 
 def hashed_password(password: str) -> str:
     logger.info('Hashing for {}'.format(password))
