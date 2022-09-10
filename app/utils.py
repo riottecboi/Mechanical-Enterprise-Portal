@@ -2,6 +2,7 @@ from passlib.context import CryptContext
 import logging
 import sys
 import pandas as pd
+import numpy as np
 
 loglevel = logging.INFO
 logger = logging.getLogger('Mechanical-Enterprise-Portal')
@@ -29,7 +30,9 @@ def remove_nans(df):
     x = x.reset_index(drop=True)
     return x
 
-def extracted_excel_file(path: str):
+def extracted_excel_file(path: str, mapping: dict):
+    data_response = []
+
     logger.info('Extracting Excel file ...')
     read_file = pd.read_excel(path)
 
@@ -41,6 +44,14 @@ def extracted_excel_file(path: str):
 
     dict_data = pd.read_excel(path, usecols=headers)
     logger.info('Extracting data by following headers ...')
-    extracted_data = dict_data.to_dict(orient='records')
+    extracted_data = dict_data.replace({np.nan: None}).to_dict(orient='records')
+    for dt in extracted_data:
+        newdict = {}
+        for k in dt:
+            if k =='Số CCCD' or k=='Số điện thoại':
+                if dt[k] is None:
+                    dt[k] = 0
+            newdict[mapping[k]] = dt[k]
+        data_response.append(newdict)
     logger.info('Returning headers and respective data from Excel file: {}'.format(path))
-    return headers, extracted_data
+    return data_response

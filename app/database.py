@@ -3,7 +3,7 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 from dotenv import load_dotenv
 from app.utils import extracted_excel_file
-from sqlalchemy import Integer, Float, DateTime
+from sqlalchemy import Integer, Float, DateTime, BigInteger
 from sqlalchemy.dialects.mysql import VARCHAR
 import pandas
 import sqlalchemy
@@ -20,15 +20,36 @@ db_url = {
     'query': {'charset': 'utf8'},  # the key-point setting
 }
 
+mapping = {
+        'TT': 'tt',
+        'Mã nhân viên': 'msnv',
+        'Họ và tên': 'fullname',
+        'Bộ phận': 'department',
+        'Giới tính': 'gender',
+        'Phương tiện': 'vehicle',
+        'Vị trí công việc': 'position',
+        'Ngày tháng năm sinh': 'dob',
+        'Đơn vị': 'sector',
+        'Số điện thoại': 'tel',
+        'Số CCCD': 'id_card',
+        'Dân tộc': 'ethnic',
+        'Quốc tịch': 'nationality',
+        'Số nhà/ Tổ': 'address',
+        'Xã/ Phường': 'ward',
+        'Quận/ Huyện': 'district',
+        'Tỉnh/TP': 'city',
+        'Nhóm đối tượng': 'target_group'
+    }
+
 def check_table_exist(table: str) -> bool:
     is_exists = sqlalchemy.inspect(engine).has_table(table)
     return is_exists
 
 def excel_extraction():
     columns = {}
-    convention = {int: Integer, float: Float, str: VARCHAR(charset='utf8', collation='utf8_general_ci', length=255), pandas.Timestamp: DateTime}
+    convention = {int: Integer, float: BigInteger, str: VARCHAR(charset='utf8', collation='utf8_general_ci', length=255), pandas.Timestamp: DateTime}
 
-    excel_columns = extracted_excel_file(os.getenv('EXCEL_PATH'))[1][0]
+    excel_columns = extracted_excel_file(os.getenv('EXCEL_PATH'), mapping)[0]
 
     for k, v in excel_columns.items():
         columns[k] = convention[type(v)]
