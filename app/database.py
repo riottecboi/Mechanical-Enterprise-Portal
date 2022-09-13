@@ -45,11 +45,11 @@ def check_table_exist(table: str) -> bool:
     is_exists = sqlalchemy.inspect(engine).has_table(table)
     return is_exists
 
-def excel_extraction():
+def excel_extraction(path):
     columns = {}
     convention = {int: Integer, float: BigInteger, str: VARCHAR(charset='utf8', collation='utf8_general_ci', length=255), pandas.Timestamp: DateTime}
 
-    excel_columns = extracted_excel_file(os.getenv('EXCEL_PATH'), mapping)[0]
+    excel_columns = extracted_excel_file(path, mapping)[0]
 
     for k, v in excel_columns.items():
         columns[k] = convention[type(v)]

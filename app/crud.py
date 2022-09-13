@@ -43,13 +43,13 @@ def apikeyauth(db: Session, apikey: str):
         db.rollback()
         return None, 404
 
-def create_user_table(table_name: str, metadata):
+def create_user_table(excel_path: str, table_name: str, metadata):
     try:
         insert = lambda _dict, obj, pos: {k: v for k, v in (list(_dict.items())[:pos] +
                                                             list(obj.items()) +
                                                             list(_dict.items())[pos:])}
         headers_index = ['id', 'msnv', 'tt', 'sector']
-        columns = excel_extraction()
+        columns = excel_extraction(excel_path)
         columns = insert(columns, {'id': Integer}, 0)
         logger.info(f'Creating {table_name} table')
         fields = (Column(colname, coltype, primary_key=True) if colname == 'id' else Column(colname, coltype, index=True) if colname in headers_index else Column(colname, coltype) for
@@ -112,7 +112,7 @@ def insert_user_table(table_name: str, data: dict, db: Session, userInfo : dict)
         logger.info(f"{table_name} table is updated\n")
 
         resp = {'apikey': user.apikey, 'username': user.msnv, 'is_admin': user.is_admin, 'is_edit': user.is_edit,
-                'is_view': user.is_view, 'message': 'Create user successful', 'tmpPWD': user.tmp_password}
+                'is_view': user.is_view, 'message': 'Create user {} successful'.format(user.msnv), 'tmpPWD': user.tmp_password}
 
         return resp, 200
 

@@ -38,17 +38,13 @@ def remove_nans(df):
 def extracted_excel_file(path: str, mapping: dict):
     data_response = []
 
-    logger.info('Extracting Excel file ...')
     read_file = pd.read_excel(path)
 
-    logger.info('Cleaning NaN areas ...')
     data = remove_nans(read_file)
 
-    logger.info('Getting all headers ...')
     headers = data.columns.tolist()
 
     dict_data = pd.read_excel(path, usecols=headers)
-    logger.info('Extracting data by following headers ...')
     extracted_data = dict_data.replace({np.nan: None}).to_dict(orient='records')
     for dt in extracted_data:
         newdict = {}
@@ -58,5 +54,4 @@ def extracted_excel_file(path: str, mapping: dict):
                     dt[k] = 0
             newdict[mapping[k]] = dt[k]
         data_response.append(newdict)
-    logger.info('Returning headers and respective data from Excel file: {}'.format(path))
     return data_response
