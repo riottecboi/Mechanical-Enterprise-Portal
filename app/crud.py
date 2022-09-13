@@ -3,6 +3,7 @@ from sqlalchemy import Table, Column, Integer
 from app.models import UserLogin
 from app.utils import logger
 from app.database import excel_extraction, engine
+from typing import Union
 
 def get_user(db: Session, username: int):
     try:
@@ -11,6 +12,43 @@ def get_user(db: Session, username: int):
         logger.info("Exception occurred: {}".format(str(e)))
         logger.info("User not found")
         return None, 404
+
+def get_user_info(table_name: str, username: Union[int, None], apikey: Union[str, None]):
+    connection = engine.raw_connection()
+    cursor = connection.cursor()
+    try:
+        logger.info(f"Getting {username if username is not None else 'anonymous info'} data ...")
+        command = f"select {table_name}.msnv, fullname, department, gender, vehicle, position, dob, " \
+                  f"sector, tel, id_card, ethnic, nationality, address, ward, district, city, target_group" \
+                  f" from {table_name} inner join authentication on {table_name}.msnv = authentication.msnv " \
+                  f"where authentication.msnv = %s or authentication.apikey = %s limit 1;"
+        cursor.execute(command, (username, apikey))
+        resp = cursor.fetchone()
+        if resp is not None:
+            user = {'msnv': resp[0], 'fullname': resp[1], 'department': resp[2], 'gender': resp[3], 'vehicle': resp[4],
+                    'position': resp[5], 'dob': resp[6], 'sector': resp[7], 'tel': resp[8],'id_card': resp[9],
+                    'ethnic': resp[10], 'nationality': resp[11], 'address': resp[12], 'ward': resp[13], 'district': resp[14],
+                    'city': resp[15], 'target_group': resp[16]
+                    }
+            status_code = 200
+        else:
+            user = {'msnv': None, 'fullname': None, 'department': None, 'gender': None, 'vehicle': None,
+                    'position': None, 'dob': None, 'sector': None, 'tel': None, 'id_card': None,
+                    'ethnic': None, 'nationality': None, 'address': None, 'ward': None, 'district': None,
+                    'city': None, 'target_group': None
+                    }
+            status_code = 404
+
+        cursor.close()
+        connection.close()
+        return user, status_code
+
+    except Exception as e:
+        logger.info("Exception occurred: {}".format(str(e)))
+        cursor.close()
+        connection.close()
+        return {}, 400
+
 
 def create_user(db: Session, userInfo : dict):
     try:

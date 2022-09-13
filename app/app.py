@@ -2,7 +2,7 @@ from fastapi import FastAPI, HTTPException, Depends, Response, Security, UploadF
 from fastapi.responses import RedirectResponse
 from fastapi.security import APIKeyHeader
 from typing import Union
-from app.schemas import UserAuth, UserOut, UserCreated, UserTable
+from app.schemas import *
 from app.utils import *
 from sqlalchemy.orm import Session
 from app.database import SessionLocal, engine, mapping, check_table_exist
@@ -37,7 +37,7 @@ async def fastapi_apikeyauth(db: Session = Depends(get_db), api_key_header: str 
 async def redirect():
     return RedirectResponse(url='/docs')
 
-@app.post('/signup', summary="Create user account", response_model=UserOut, tags=["users"])
+@app.post('/signup', summary="Create user account", dependencies=[Security(fastapi_apikeyauth)], response_model=UserOut, tags=["admin"])
 async def signup(form_data: UserAuth, response: Response, db: Session = Depends(get_db)):
     user, status_code = crud.get_user(db, form_data.username)
     if user is not None:
@@ -84,15 +84,15 @@ async def login(form_data: UserAuth, response: Response,  db: Session = Depends(
 
 @app.post('/signupMultipleUserbyExcel', summary='Create/Insert User Information & Authentication by Excel file',
           dependencies=[Security(fastapi_apikeyauth)], response_model=UserCreated, tags=["admin"])
-async def signup_by_excel(table_name: str, response: Response, db: Session = Depends(get_db), file: Union[UploadFile, None] = File(..., description="Excel file upload")):
+async def signup_by_excel(response: Response, db: Session = Depends(get_db), file: Union[UploadFile, None] = File(..., description="Excel file upload")):
     try:
         list_pwd = []
         path = f"/tmp/{file.filename}"
         with open(path, 'wb') as e:
             e.write(file.file.read())
-        table_exist = check_table_exist(table_name)
+        table_exist = check_table_exist('user')
         if table_exist is False:
-            table_status, status_code = crud.create_user_table(path, table_name, models.Base.metadata)
+            table_status, status_code = crud.create_user_table(path, 'user', models.Base.metadata)
             response.status_code = status_code
             models.Base.metadata.create_all(engine)
             if status_code != 200:
@@ -107,7 +107,7 @@ async def signup_by_excel(table_name: str, response: Response, db: Session = Dep
                 'apikey': str(uuid4()),
                 'hashed': hashed_password(random_pwd)
             }
-            resp, code = crud.insert_user_table(table_name, data, db, userInfo)
+            resp, code = crud.insert_user_table('user', data, db, userInfo)
             if code == 200:
                 list_pwd.append(resp)
         response.status_code = 200
@@ -120,7 +120,7 @@ async def signup_by_excel(table_name: str, response: Response, db: Session = Dep
             detail="Cannot create user by Excel file",
         )
 
-@app.post('/dropTable', summary='Drop a user table', dependencies=[Security(fastapi_apikeyauth)], response_model=UserTable, tags=["admin"])
+@app.post('/dropTable', summary='Drop table', dependencies=[Security(fastapi_apikeyauth)], response_model=UserTable, tags=["admin"])
 async def drop_table(table_name: str, response: Response):
     table_status, status_code = crud.drop_table(table_name)
     response.status_code = status_code
@@ -148,12 +148,13 @@ async def drop_table(table_name: str, response: Response):
 #         )
 
 
-# @app.get('/me', summary='Get details of currently logged in user', dependencies=[Security(fastapi_apikeyauth)], response_model=UserOut)
-# async def get_me(username: int, response: Response, db: Session = Depends(get_db)):
-#     user, status_code = crud.get_user(db, username)
-#     response.status_code = status_code
-#     if status_code == 200:
-#         u_resp = {'apikey': user.apikey, 'username': username}
-#     else:
-#         u_resp = {'message': 'Incorrect Username'}
-#     return u_resp
+@app.get('/info', summary='Get details of currently logged in user', dependencies=[Security(fastapi_apikeyauth)], response_model=UserInfo, tags=["users"])
+async def get_me(response: Response, username: Union[int, None] = None, apikey: Union[str, None] = None):
+    user, status_code = crud.get_user_info('user', username, apikey)
+    response.status_code = status_code
+    if status_code == 200:
+        user['dob'] = user['dob'].strftime("%d/%m/%Y")
+        u_resp = user
+    else:
+        u_resp = user
+    return u_resp

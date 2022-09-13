@@ -9,6 +9,25 @@ class UserAuth(BaseModel):
     username: Union[int, str] = Field(..., description="Employee ID")
     password: str = Field(..., min_length=5, max_length=24, description="Employee password")
 
+class UserInfo(BaseModel):
+    msnv: Union[int, None]
+    fullname: Union[str, None]
+    department: Union[str, None]
+    gender: Union[str, None]
+    vehicle: Union[str, None]
+    position: Union[str, None]
+    dob: Union[str, None]
+    sector: Union[str, None]
+    tel: Union[str, None]
+    id_card: Union[int, None]
+    ethnic: Union[str, None]
+    nationality: Union[str, None]
+    address: Union[str, None]
+    ward: Union[str, None]
+    district: Union[str, None]
+    city: Union[str, None]
+    target_group: Union[str, None]
+
 class UserOut(BaseModel):
     apikey: Union[UUID, None]
     username: Union[int, None]
