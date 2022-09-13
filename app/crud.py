@@ -1,8 +1,8 @@
 from sqlalchemy.orm import Session
 from sqlalchemy import Table, Column, Integer
 from app.models import UserLogin
-from app.utils import logger, extracted_excel_file
-from app.database import excel_extraction, Base, engine, mapping
+from app.utils import logger
+from app.database import excel_extraction, engine
 
 def get_user(db: Session, username: int):
     try:
@@ -43,7 +43,7 @@ def apikeyauth(db: Session, apikey: str):
         db.rollback()
         return None, 404
 
-def create_user_table(table_name: str):
+def create_user_table(table_name: str, metadata):
     try:
         insert = lambda _dict, obj, pos: {k: v for k, v in (list(_dict.items())[:pos] +
                                                             list(obj.items()) +
@@ -54,7 +54,7 @@ def create_user_table(table_name: str):
         logger.info(f'Creating {table_name} table')
         fields = (Column(colname, coltype, primary_key=True) if colname == 'id' else Column(colname, coltype, index=True) if colname in headers_index else Column(colname, coltype) for
                   colname, coltype in columns.items())
-        Table(table_name, Base.metadata, *fields)
+        Table(table_name, metadata, *fields)
         return True, 200
 
     except Exception as e:
@@ -122,7 +122,7 @@ def insert_user_table(table_name: str, data: dict, db: Session, userInfo : dict)
         return {}, 400
 
 
-create_user_table('U')
+# create_user_table('U')
 # datas = extracted_excel_file('/home/tranvinhliem/PycharmProjects/Mechanical-Enterprise-Portal/Example.xlsx', mapping)
 # for data in datas:
 #     logger.info('UPDATED for msnv: {}'.format(data['msnv']))

@@ -126,18 +126,19 @@ async def drop_table(table_name: str, response: Response):
             detail="Cannot drop a user table"
         )
 
-# @app.post('/createUserTable', summary='Create a user table', response_model=UserExcelTable, tags=["admin"])
-# async def create_user_table_for_excel(table_name: str, response: Response):
-#     table_status, status_code = create_user_table(table_name)
-#     response.status_code = status_code
-#     if status_code == 200:
-#         u_resp = {'table_name': table_name, 'status': table_status}
-#         return u_resp
-#     else:
-#         raise HTTPException(
-#             status_code=400,
-#             detail="Cannot create a user table"
-#         )
+@app.post('/createUserTable', summary='Create a user table', response_model=UserTable, tags=["admin"])
+async def create_user_table_for_excel(table_name: str, response: Response):
+    table_status, status_code = crud.create_user_table(table_name, models.Base.metadata)
+    response.status_code = status_code
+    models.Base.metadata.create_all(engine)
+    if status_code == 200:
+        u_resp = {'table_name': table_name, 'status': table_status}
+        return u_resp
+    else:
+        raise HTTPException(
+            status_code=400,
+            detail="Cannot create a user table"
+        )
 
 
 @app.get('/me', summary='Get details of currently logged in user', dependencies=[Security(fastapi_apikeyauth)], response_model=UserOut)

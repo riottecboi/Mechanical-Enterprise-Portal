@@ -3,7 +3,7 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 from dotenv import load_dotenv
 from app.utils import extracted_excel_file
-from sqlalchemy import Integer, Float, DateTime, BigInteger
+from sqlalchemy import Integer, DateTime, BigInteger
 from sqlalchemy.dialects.mysql import VARCHAR
 import pandas
 import sqlalchemy

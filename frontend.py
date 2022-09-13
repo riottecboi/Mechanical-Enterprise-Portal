@@ -57,7 +57,7 @@ def logout():
 
 @app.route('/testTemplate', methods=['GET'])
 def test():
-    return render_template('index.html')
+    return render_template('dashboard.html')
 
 if __name__ == '__main__':
     app.run()
