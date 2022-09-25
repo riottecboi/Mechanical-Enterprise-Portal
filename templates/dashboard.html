@@ -4,29 +4,31 @@
     <meta charset="UTF-8">
     <title>Title</title>
     <link href="{{url_for('static', filename='css/dashboard.css')}}" rel="stylesheet">
+    <link href="{{url_for('static', filename='css/profile.css')}}" rel="stylesheet">
+    <link href="{{url_for('static', filename='css/modal.css')}}" rel="stylesheet">
+    <link href="{{url_for('static', filename='css/style.css')}}" rel="stylesheet">
     <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
 </head>
 <body>
 <div class='dashboard'>
     <div class="dashboard-nav">
-        <header><a href="#!" class="menu-toggle"><i class="fas fa-bars"></i></a><a href="#"
-                                                                                   class="brand-logo"><i
-                class="fas fa-anchor"></i> <span>BRAND</span></a></header>
-        <nav class="dashboard-nav-list"><a href="#" class="dashboard-nav-item"><i class="fas fa-home"></i>
-            Home </a><a
-                href="#" class="dashboard-nav-item active"><i class="fas fa-tachometer-alt"></i> dashboard
-        </a><a
-                href="#" class="dashboard-nav-item"><i class="fas fa-file-upload"></i> Upload </a>
-            <div class='dashboard-nav-dropdown'><a href="#!" class="dashboard-nav-item dashboard-nav-dropdown-toggle"><i
-                    class="fas fa-photo-video"></i> Media </a>
-                <div class='dashboard-nav-dropdown-menu'><a href="#"
-                                                            class="dashboard-nav-dropdown-item">All</a><a
-                        href="#" class="dashboard-nav-dropdown-item">Recent</a><a
-                        href="#" class="dashboard-nav-dropdown-item">Images</a><a
-                        href="#" class="dashboard-nav-dropdown-item">Video</a></div>
-            </div>
-            <div class='dashboard-nav-dropdown'><a href="#!" class="dashboard-nav-item dashboard-nav-dropdown-toggle"><i
-                    class="fas fa-users"></i> Users </a>
+        <header>
+            <a href="#" class="brand-logo">
+                <span>BRAND</span>
+            </a>
+        </header>
+        <nav class="dashboard-nav-list">
+            <a href="{{url_for('menu')}}" class="dashboard-nav-item active">Trang chủ</a>
+<!--            <a href="#" class="dashboard-nav-item active"> dashboard</a>-->
+            <a href="#" class="dashboard-nav-item"> Upload </a>
+<!--            <div class='dashboard-nav-dropdown'><a href="#!" class="dashboard-nav-item dashboard-nav-dropdown-toggle"> Media </a>-->
+<!--                <div class='dashboard-nav-dropdown-menu'>-->
+<!--                    <a href="#"  class="dashboard-nav-dropdown-item">All</a>-->
+<!--                    <a href="#" class="dashboard-nav-dropdown-item">Recent</a>-->
+<!--                    <a href="#" class="dashboard-nav-dropdown-item">Images</a><a-->
+<!--                        href="#" class="dashboard-nav-dropdown-item">Video</a></div>-->
+<!--            </div>-->
+            <div class='dashboard-nav-dropdown'><a href="#!" class="dashboard-nav-item dashboard-nav-dropdown-toggle"> Users </a>
                 <div class='dashboard-nav-dropdown-menu'><a href="#"
                                                             class="dashboard-nav-dropdown-item">All</a><a
                         href="#" class="dashboard-nav-dropdown-item">Subscribed</a><a
@@ -35,25 +37,32 @@
                         href="#" class="dashboard-nav-dropdown-item">Banned</a><a
                         href="#" class="dashboard-nav-dropdown-item">New</a></div>
             </div>
-            <div class='dashboard-nav-dropdown'><a href="#!" class="dashboard-nav-item dashboard-nav-dropdown-toggle"><i
-                    class="fas fa-money-check-alt"></i> Payments </a>
-                <div class='dashboard-nav-dropdown-menu'><a href="#"
-                                                            class="dashboard-nav-dropdown-item">All</a><a
-                        href="#" class="dashboard-nav-dropdown-item">Recent</a><a
-                        href="#" class="dashboard-nav-dropdown-item"> Projections</a>
-                </div>
-            </div>
-            <a href="#" class="dashboard-nav-item"><i class="fas fa-cogs"></i> Settings </a><a
-                    href="#" class="dashboard-nav-item"><i class="fas fa-user"></i> Profile </a>
-          <div class="nav-item-divider"></div>
-          <a
-                    href="#" class="dashboard-nav-item"><i class="fas fa-sign-out-alt"></i> Logout </a>
+<!--            <div class='dashboard-nav-dropdown'><a href="#!" class="dashboard-nav-item dashboard-nav-dropdown-toggle"><i-->
+<!--                    class="fas fa-money-check-alt"></i> Payments </a>-->
+<!--                <div class='dashboard-nav-dropdown-menu'><a href="#"-->
+<!--                                                            class="dashboard-nav-dropdown-item">All</a><a-->
+<!--                        href="#" class="dashboard-nav-dropdown-item">Recent</a><a-->
+<!--                        href="#" class="dashboard-nav-dropdown-item"> Projections</a>-->
+<!--                </div>-->
+<!--            </div>-->
+            <a href="#" class="dashboard-nav-item"> Settings </a>
+            <a href="#" class="dashboard-nav-item"> Profile </a>
+            <div class="nav-item-divider"></div>
+            <a href="{{url_for('logout')}}" class="dashboard-nav-item"> Logout </a>
         </nav>
     </div>
     <div class='dashboard-app'>
-        <header class='dashboard-toolbar'><a href="#!" class="menu-toggle"><i class="fas fa-bars"></i></a></header>
+        <header class='dashboard-toolbar'><a href="#!" class="menu-toggle">Trang chủ</a></header>
         <div class='dashboard-content'>
             <div class='container'>
+                {% for category, message in get_flashed_messages(with_categories=True) %}
+                  <div class="alert alert-{{category}}">{{ message }}</div>
+                {% endfor %}
+                <script>
+                    setTimeout(function() {
+                        $(".alert").fadeOut('fast');
+                    }, 3000);
+                </script>
                 <div class='card'>
                     <div class='card-header'>
                         <h1>Welcome back Jim</h1>
@@ -61,6 +70,53 @@
                     <div class='card-body'>
                         <p>Your account type is: Administrator</p>
                     </div>
+
+                </div>
+                <div style="overflow-x: auto;margin-top: 10px">
+                      <table>
+                          <tr>
+                              <th>Thứ tự</th>
+                              <th>Mã số nhân viên</th>
+                              <th>Họ và tên</th>
+                              <th>Bộ phận</th>
+                              <th>Giới tính</th>
+                              <th>Phương tiện</th>
+                              <th>Vị trí công việc</th>
+                              <th>Ngày tháng năm sinh</th>
+                              <th>Đơn vị</th>
+                              <th>Số điện thoại</th>
+                              <th>Số CCCD</th>
+                              <th>Dân tộc</th>
+                              <th>Quốc tịch</th>
+                              <th>Số nhà/ Tổ</th>
+                              <th>Xã/ Phường</th>
+                              <th>Quận/ Huyện</th>
+                              <th>Tỉnh/TP</th>
+                              <th>Nhóm đối tượng</th>
+                          </tr>
+                          {% for user in users %}
+                            <tr>
+                                <td>{% if user['tt'] != None %}{{user['tt']}}{% endif %}</td>
+                                <td>{% if user['msnv'] != None %}{{user['msnv']}}{% endif %}</td>
+                                <td>{% if user['fullname'] != None %}{{user['fullname']}}{% endif %}</td>
+                                <td>{% if user['department'] != None %}{{user['department']}}{% endif %}</td>
+                                <td>{% if user['gender'] != None %}{{user['gender']}}{% endif %}</td>
+                                <td>{% if user['vehicle'] != None %}{{user['vehicle']}}{% endif %}</td>
+                                <td>{% if user['position'] != None %}{{user['position']}}{% endif %}</td>
+                                <td>{% if user['dob'] != None %}{{user['dob']}}{% endif %}</td>
+                                <td>{% if user['sector'] != None %}{{user['sector']}}{% endif %}</td>
+                                <td>{% if user['tel'] != None %}{{user['tel']}}{% endif %}</td>
+                                <td>{% if user['id_card'] != None %}{{user['id_card']}}{% endif %}</td>
+                                <td>{% if user['ethnic'] != None %}{{user['ethnic']}}{% endif %}</td>
+                                <td>{% if user['nationality'] != None %}{{user['nationality']}}{% endif %}</td>
+                                <td>{% if user['address'] != None %}{{user['address']}}{% endif %}</td>
+                                <td>{% if user['ward'] != None %}{{user['ward']}}{% endif %}</td>
+                                <td>{% if user['district'] != None %}{{user['district']}}{% endif %}</td>
+                                <td>{% if user['city'] != None %}{{user['city']}}{% endif %}</td>
+                                <td>{% if user['target_group'] != None %}{{user['target_group']}}{% endif %}</td>
+                            </tr>
+                          {%  endfor %}
+                      </table>
                 </div>
             </div>
         </div>

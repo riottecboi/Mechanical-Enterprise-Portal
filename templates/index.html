@@ -14,7 +14,7 @@
 
     <!-- Style -->
     <link href="{{url_for('static', filename='css/style.css')}}" rel="stylesheet">
-    <title>Login #9</title>
+    <title>Login Page</title>
   </head>
   <body st>
   
@@ -25,6 +25,14 @@
           <div class="row justify-content-center">
             <div class="col-md-12">
               <div class="form-block">
+                  {% for category, message in get_flashed_messages(with_categories=True) %}
+                    <div class="alert alert-{{category}}">{{ message }}</div>
+                  {% endfor %}
+                  <script>
+                      setTimeout(function() {
+                          $(".alert").fadeOut('fast');
+                      }, 3000);
+                  </script>
                   <div class="mb-4" style="text-align: center">
                     <h3>TỔNG CÔNG TY TÂN CẢNG SÀI GÒN</h3>
                     <p class="mb-4">HỆ THỐNG ĐÀO TẠO TRỰC TUYẾN</p>

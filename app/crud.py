@@ -5,7 +5,7 @@ from app.utils import logger
 from app.database import excel_extraction, engine
 from typing import Union
 
-def get_user(db: Session, username: int):
+def get_user(db: Session, username: Union[str,int]):
     try:
         return db.query(UserLogin).filter(UserLogin.msnv==username).one(), 200
     except Exception as e:
@@ -68,9 +68,9 @@ def apikeyauth(db: Session, apikey: str):
     Look up apikey, return username in dict form
     """
     try:
-        query = db.query(UserLogin.msnv).filter(UserLogin.apikey == apikey).one()
+        query = db.query(UserLogin).filter(UserLogin.apikey == apikey).one()
         if query is not None:
-            resp = {'username': query[0]}
+            resp = {'username': query.msnv, 'admin': query.is_admin}
             code = 200
         else:
             resp = None
@@ -80,6 +80,28 @@ def apikeyauth(db: Session, apikey: str):
         logger.info("Exception occurred: {}".format(str(e)))
         db.rollback()
         return None, 404
+
+def apikeyadmin(db: Session, apikey: str):
+    """
+    Look up admin apikey, return username in dict form
+    """
+    try:
+        query = db.query(UserLogin).filter(UserLogin.apikey == apikey).one()
+        if query is not None:
+            if query.is_admin is True:
+                resp = {'username': query.msnv, 'admin': query.is_admin}
+                code = 200
+            else:
+                resp = None
+                code = 401
+        else:
+            resp = None
+            code = 401
+        return resp, code
+    except Exception as e:
+        logger.info("Exception occurred: {}".format(str(e)))
+        db.rollback()
+        return None, 401
 
 def create_user_table(excel_path: str, table_name: str, metadata):
     try:
@@ -121,6 +143,7 @@ def drop_table(table_name: str):
         connection.commit()
         cursor.close()
         logger.info(f'{table_name} table is deleted')
+        connection.close()
         return True, 200
     except Exception as e:
         logger.info("Exception occurred: {}".format(str(e)))
@@ -151,12 +174,36 @@ def insert_user_table(table_name: str, data: dict, db: Session, userInfo : dict)
 
         resp = {'apikey': user.apikey, 'username': user.msnv, 'is_admin': user.is_admin, 'is_edit': user.is_edit,
                 'is_view': user.is_view, 'message': 'Create user {} successful'.format(user.msnv), 'tmpPWD': user.tmp_password}
-
+        cursor.close()
+        connection.close()
         return resp, 200
 
     except Exception as e:
         logger.info("Exception occurred: {}".format(str(e)))
         logger.info(f'Cannot update data')
+        return {}, 400
+
+def get_all_users(table_name: str):
+    try:
+        users = []
+        connection = engine.raw_connection()
+        cursor = connection.cursor()
+        logger.info('Getting all users')
+        command = f"SELECT * from {table_name};"
+        cursor.execute(command)
+        resp = cursor.fetchall()
+        if resp is not None:
+            for result in resp:
+                users.append({'tt': result[1], 'msnv': result[2], 'fullname': result[3], 'department': result[4], 'gender': result[5], 'vehicle': result[6], 'position': result[7], 'dob': result[8].strftime('%d-%m-%Y'),
+                              'sector': result[9], 'tel': result[10], 'id_card': result[11], 'ethnic': result[12], 'nationality': result[13], 'address': result[14], 'ward': result[15], 'district': result[16],
+                              'city': result[17], 'target_group': result[18]})
+
+        cursor.close()
+        connection.close()
+        return users, 200
+    except Exception as e:
+        logger.info("Exception occurred: {}".format(str(e)))
+        logger.info(f'Cannot get data')
         return {}, 400
 
 

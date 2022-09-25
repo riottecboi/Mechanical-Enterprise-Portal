@@ -7,9 +7,10 @@ class NotFound(BaseModel):
 
 class UserAuth(BaseModel):
     username: Union[int, str] = Field(..., description="Employee ID")
-    password: str = Field(..., min_length=5, max_length=24, description="Employee password")
+    password: str = Field(..., min_length=5, description="Employee password")
 
 class UserInfo(BaseModel):
+    tt: Union[int, None]
     msnv: Union[int, None]
     fullname: Union[str, None]
     department: Union[str, None]
@@ -28,13 +29,16 @@ class UserInfo(BaseModel):
     city: Union[str, None]
     target_group: Union[str, None]
 
-class UserOut(BaseModel):
+class UserVerification(BaseModel):
     apikey: Union[UUID, None]
     username: Union[int, None]
     is_admin: Union[bool, None]
     is_edit: Union[bool, None]
     is_view: Union[bool, None]
     message: Union[str, None]
+
+
+class UserOut(UserVerification):
     tmpPWD: Union[str, None]
 
 

@@ -25,14 +25,23 @@ def get_db():
     finally:
         db.close()
 
-x_secret_key = APIKeyHeader(name='X-SECRET-KEY', auto_error=True)
+x_secret_key = APIKeyHeader(name='X-SECRET-KEY', scheme_name='api-key', auto_error=True)
 async def fastapi_apikeyauth(db: Session = Depends(get_db), api_key_header: str = Security(x_secret_key)):
     if crud.apikeyauth(db, api_key_header) == None:
         raise HTTPException(
             status_code=401,
             detail="Invalid API Key",
         )
-
+x_admin_secret_key = APIKeyHeader(name='X-ADMIN-SECRET-KEY', scheme_name='admin-api-key', auto_error=True)
+async def admin_apikeyauth(db: Session = Depends(get_db), api_key_header: str = Security(x_admin_secret_key)):
+    check, status = crud.apikeyadmin(db, api_key_header)
+    if check == None:
+        raise HTTPException(
+            status_code=401,
+            detail="Invalid API Key",
+        )
+    else:
+        return check
 @app.get('/', response_class=RedirectResponse, include_in_schema=False)
 async def redirect():
     return RedirectResponse(url='/docs')
@@ -79,7 +88,8 @@ async def login(form_data: UserAuth, response: Response,  db: Session = Depends(
         return {'message': 'Incorrect Username or Password'}
 
     logger.info("Getting user successful")
-    return {'apikey': user.apikey, 'username': form_data.username, 'is_admin': user.is_admin, 'is_edit': user.is_edit, 'is_view': user.is_view, 'message': 'Login successful'}
+    return {'apikey': user.apikey, 'username': form_data.username, 'is_admin': user.is_admin, 'is_edit': user.is_edit,
+            'is_view': user.is_view, 'message': 'Login successful'}
 
 
 @app.post('/signupMultipleUserbyExcel', summary='Create/Insert User Information & Authentication by Excel file',
@@ -147,6 +157,11 @@ async def drop_table(table_name: str, response: Response):
 #             detail="Cannot create a user table"
 #         )
 
+@app.get('/allUser', summary='Get all user from database', dependencies=[Security(admin_apikeyauth)], response_model=Union[List[UserInfo], None], tags=['admin'])
+async def getAllusers(response: Response):
+    allUsers, status_code = crud.get_all_users('user')
+    response.status_code = status_code
+    return allUsers
 
 @app.get('/info', summary='Get details of currently logged in user', dependencies=[Security(fastapi_apikeyauth)], response_model=UserInfo, tags=["users"])
 async def get_me(response: Response, username: Union[int, None] = None, apikey: Union[str, None] = None):
