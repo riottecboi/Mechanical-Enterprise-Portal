@@ -29,6 +29,11 @@ class UserInfo(BaseModel):
     city: Union[str, None]
     target_group: Union[str, None]
 
+class UserAdd(UserInfo):
+    username = Union[int, str] = Field(..., description="Employee username")
+    password: str = Field(..., min_length=5, description="Employee password")
+    confirm_password: str = Field(..., min_length=5, description="Employee confirm password")
+
 class UserVerification(BaseModel):
     apikey: Union[UUID, None]
     username: Union[int, None]
