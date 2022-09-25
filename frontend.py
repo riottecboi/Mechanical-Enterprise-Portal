@@ -70,6 +70,12 @@ def menu():
     if userAdmin is False:
         return render_template('profile.html', cur_user=userInfo.json(), userType='User')
 
+@app.route('/adminInfo', methods=['GET'])
+def adminInfo():
+    userAPIkey = session.get('apikey')
+    userInfo = requests.get(f"{app.config['BASE_URL']}/info", params={'apikey': userAPIkey},
+                            headers={'X-SECRET-KEY': session.get('apikey')})
+    return render_template('profile.html', cur_user=userInfo.json(), userType='Administrator')
 
 @app.route('/logout', methods=['GET'])
 def logout():

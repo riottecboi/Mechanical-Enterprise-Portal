@@ -19,26 +19,16 @@
         </header>
         <nav class="dashboard-nav-list">
             <a href="{{url_for('menu')}}" class="dashboard-nav-item active"><b>Trang chủ</b></a>
-<!--            <a href="#" class="dashboard-nav-item active"> dashboard</a>-->
-            <a href="#" class="dashboard-nav-item"><b> Upload </b></a>
-<!--            <div class='dashboard-nav-dropdown'><a href="#!" class="dashboard-nav-item dashboard-nav-dropdown-toggle"> Media </a>-->
-<!--                <div class='dashboard-nav-dropdown-menu'>-->
-<!--                    <a href="#"  class="dashboard-nav-dropdown-item">All</a>-->
-<!--                    <a href="#" class="dashboard-nav-dropdown-item">Recent</a>-->
-<!--                    <a href="#" class="dashboard-nav-dropdown-item">Images</a><a-->
-<!--                        href="#" class="dashboard-nav-dropdown-item">Video</a></div>-->
-<!--            </div>-->
-            <div class='dashboard-nav-dropdown'><a href="#!" class="dashboard-nav-item dashboard-nav-dropdown-toggle"><b> Users </b></a>
-                <div class='dashboard-nav-dropdown-menu'><a href="#"
-                                                            class="dashboard-nav-dropdown-item">All</a><a
-                        href="#" class="dashboard-nav-dropdown-item">Subscribed</a><a
-                        href="#"
-                        class="dashboard-nav-dropdown-item">Non-subscribed</a><a
-                        href="#" class="dashboard-nav-dropdown-item">Banned</a><a
-                        href="#" class="dashboard-nav-dropdown-item">New</a></div>
+<!--            <a href="#" class="dashboard-nav-item"><b> Upload </b></a>-->
+            <div class='dashboard-nav-dropdown'><a href="#!" class="dashboard-nav-item dashboard-nav-dropdown-toggle"><b>Quản lí</b></a>
+                <div class='dashboard-nav-dropdown-menu'>
+                    <a href="#" class="dashboard-nav-dropdown-item">Thêm người dùng</a>
+                    <a href="#" class="dashboard-nav-dropdown-item">Thay đổi thông tin người dùng</a>
+                    <a href="#" class="dashboard-nav-dropdown-item">Cập nhật toàn bộ danh sách người dùng</a>
+                </div>
             </div>
-            <a href="#" class="dashboard-nav-item"><b> Settings </b></a>
-            <a href="#" class="dashboard-nav-item"><b> Profile </b></a>
+<!--            <a href="#" class="dashboard-nav-item"><b> Cài đặt </b></a>-->
+            <a href="{{url_for('adminInfo')}}" class="dashboard-nav-item"><b> Cá nhân </b></a>
             <div class="nav-item-divider"></div>
             <a href="{{url_for('logout')}}" class="dashboard-nav-item"><b>  Đăng xuất </b></a>
         </nav>
@@ -67,7 +57,7 @@
                 <div style="overflow-x: auto;margin-top: 10px">
                       <table>
                           <tr>
-                              <th>Thứ tự</th>
+                              <th>TT</th>
                               <th>Mã số nhân viên</th>
                               <th>Họ và tên</th>
                               <th>Bộ phận</th>

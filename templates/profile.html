@@ -18,7 +18,17 @@
             </a>
         </header>
         <nav class="dashboard-nav-list">
-          <a href="{{url_for('menu')}}" class="dashboard-nav-item active"><b>Trang chủ</b></a>
+            <a href="{{url_for('menu')}}" class="dashboard-nav-item {% if userType !='Administrator' %} active {% endif %}"><b>Trang chủ</b></a>
+            {% if userType=='Administrator' %}
+            <div class='dashboard-nav-dropdown'><a href="#!" class="dashboard-nav-item dashboard-nav-dropdown-toggle"><b>Quản lí</b></a>
+                <div class='dashboard-nav-dropdown-menu'>
+                    <a href="#" class="dashboard-nav-dropdown-item">Thêm người dùng</a>
+                    <a href="#" class="dashboard-nav-dropdown-item">Thay đổi thông tin người dùng</a>
+                    <a href="#" class="dashboard-nav-dropdown-item">Cập nhật toàn bộ danh sách người dùng</a>
+                </div>
+            </div>
+            <a href="{{url_for('adminInfo')}}" class="dashboard-nav-item active"><b> Cá nhân </b></a>
+            {% endif %}
             <div class="nav-item-divider"></div>
             <a href="{{url_for('logout')}}" class="dashboard-nav-item"><b> Đăng xuất </b></a>
         </nav>
@@ -46,7 +56,7 @@
                 </div>
                 <div class="profile-user">
                   <div class="content-profile">
-                    <div class="sub-title">Trang cá nhân</div>
+<!--                    <div class="sub-title">Trang cá nhân</div>-->
                     <div class="line"></div>
                     <div class="main-content">
                       <div class="user">
