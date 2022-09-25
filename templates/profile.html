@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Trang chủ</title>
+    <link href="{{url_for('static', filename='css/dashboard.css')}}" rel="stylesheet">
+    <link href="{{url_for('static', filename='css/profile.css')}}" rel="stylesheet">
+    <link href="{{url_for('static', filename='css/modal.css')}}" rel="stylesheet">
+    <link href="{{url_for('static', filename='css/style.css')}}" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+</head>
+<body>
+<div class='dashboard'>
+    <div class="dashboard-nav">
+        <header>
+            <a href="#" class="brand-logo">
+                <span>BRAND</span>
+            </a>
+        </header>
+        <nav class="dashboard-nav-list">
+          <a href="{{url_for('menu')}}" class="dashboard-nav-item active"><b>Trang chủ</b></a>
+            <div class="nav-item-divider"></div>
+            <a href="{{url_for('logout')}}" class="dashboard-nav-item"><b> Đăng xuất </b></a>
+        </nav>
+    </div>
+    <div class='dashboard-app'>
+        <header class='dashboard-toolbar'></header>
+        <div class='dashboard-content'>
+            <div class='container'>
+                {% for category, message in get_flashed_messages(with_categories=True) %}
+                  <div class="alert alert-{{category}}">{{ message }}</div>
+                {% endfor %}
+                <script>
+                    setTimeout(function() {
+                        $(".alert").fadeOut('fast');
+                    }, 3000);
+                </script>
+                <div class='card'>
+                    <div class='card-header'>
+                        <h1>Hi ! <b><i>{{cur_user['fullname']}}</i></b></h1>
+                    </div>
+                    <div class='card-body'>
+                        <p>Your account type is: {{userType}}</p>
+                    </div>
+
+                </div>
+                <div class="profile-user">
+                  <div class="content-profile">
+                    <div class="sub-title">Trang cá nhân</div>
+                    <div class="line"></div>
+                    <div class="main-content">
+                      <div class="user">
+                        <div class="user-id">Mã số nhân viên :</div>
+                          <div class="user-number"> <b>{{cur_user['msnv']}}</b></b> </div>
+                      </div>
+                      <div class="line"></div>
+                      <div class="user-name">
+                        <div class="title-name">Họ và tên :</div>
+                        <div class="detail-name"><b>{{cur_user['fullname']}}</b></div>
+                      </div>
+                      <div class="line"></div>
+                      <div class="profile-app-right">
+                        <div class="title-app-right">Ngày tháng năm sinh :</div>
+                        <div class="detail-name">
+                          <b>{{cur_user['dob']}}</b>
+                        </div>
+                      </div>
+                      <div class="line"></div>
+                      <div class="profile-app-right">
+                        <div class="title-app-right">Giới tính :</div>
+                        <div class="detail-name">
+                          <b>{{cur_user['gender']}}</b>
+                        </div>
+                      </div>
+                      <div class="line"></div>
+                      <div class="profile-app-right">
+                        <div class="title-app-right">Số điện thoại :</div>
+                        <div class="detail-name">
+                          <b>{{cur_user['tel']}}</b>
+                        </div>
+                      </div>
+                      <div class="line"></div>
+                      <div class="profile-app-right">
+                        <div class="title-app-right">Số CMND/CCCD :</div>
+                        <div class="detail-name">
+                          <b>{{cur_user['id_card']}}</b>
+                        </div>
+                      </div>
+                      <div class="line"></div>
+                      <div class="profile-app-right">
+                        <div class="title-app-right">Dân tộc :</div>
+                        <div class="detail-name">
+                          <b>{{cur_user['ethnic']}}</b>
+                        </div>
+                      </div>
+                      <div class="line"></div>
+                      <div class="profile-app-right">
+                        <div class="title-app-right">Quốc tịch :</div>
+                        <div class="detail-name">
+                          <b>{{cur_user['nationality']}}</b>
+                        </div>
+                      </div>
+                      <div class="line"></div>
+                      <div class="profile-app-right">
+                        <div class="title-app-right">Số nhà/ Tổ :</div>
+                        <div class="detail-name">
+                          <b>{{cur_user['address']}}</b>
+                        </div>
+                      </div>
+                      <div class="line"></div>
+                      <div class="profile-app-right">
+                        <div class="title-app-right">Xã/ Phường :</div>
+                        <div class="detail-name">
+                          <b>{{cur_user['ward']}}</b>
+                        </div>
+                      </div>
+                      <div class="line"></div>
+                      <div class="profile-app-right">
+                        <div class="title-app-right">Quận/ Huyện :</div>
+                        <div class="detail-name">
+                          <b>{{cur_user['district']}}</b>
+                        </div>
+                      </div>
+                      <div class="line"></div>
+                      <div class="profile-app-right">
+                        <div class="title-app-right">Tỉnh/TP :</div>
+                        <div class="detail-name">
+                          <b>{{cur_user['city']}}</b>
+                        </div>
+                      </div>
+                      <div class="line"></div>
+                      <div class="profile-app-right">
+                        <div class="title-app-right">Nhóm đối tượng :</div>
+                        <div class="detail-name">
+                          <b>{{cur_user['target_group']}}</b>
+                        </div>
+                      </div>
+                      <div class="line"></div>
+                      <div class="profile-app-right">
+                        <div class="title-app-right">Bộ phận :</div>
+                        <div class="detail-name">
+                          <b>{{cur_user['department']}}</b>
+                        </div>
+                      </div>
+
+                      <div class="line"></div>
+                      <div class="profile-app-right">
+                        <div class="title-app-right">Chức danh :</div>
+                        <div class="detail-name">
+                          <b>{{cur_user['vehicle']}}</b>
+                        </div>
+                      </div>
+                      <div class="line"></div>
+                      <div class="profile-app-right">
+                        <div class="title-app-right">Vị trí công việc :</div>
+                        <div class="detail-name">
+                          <b>{{cur_user['position']}}</b>
+                        </div>
+                      </div>
+                      <div class="line"></div>
+                      <div class="user-company">
+                        <div class="title-company">Đơn vị :</div>
+                          <div class="detail-company"><b>{{cur_user['sector']}}</b></div>
+                      </div>
+
+                      <div class="line"></div>
+                      <div class="reset-password">
+                        <div class="title-reset">Reset Password :</div>
+                        <div class="detail-option-reset">
+                          <label for="currentpw">Current Password : <br>
+                            <input  class="input-current" type="password" id="currentpw" name="currentpw">
+                          </label>
+                          <br>
+                          <label for="newpw">New Password : <br>
+                            <input  class="input-current" type="password" id="newpw" name="newpw">
+                          </label>
+                          <br>
+                          <label for="re-newpw">Re-Enter New Password : <br>
+                            <input  class="input-current" type="password" id="re-newpw" name="re-newpw">
+                          </label>
+                        </div>
+                        <div class="line-pw"></div>
+                        <div class="text-request">You password to must :
+                          <div class="impor-request">Be 8 to 20 characters long. <br>Contain atleast one lower-case letter.<br>Cotain atleast one upper-case letter.<br>Cotain atleast one number.<br> Coyain atleast one special character: ~! @ 3 $ % 6 & * () - =</div>
+                        </div>
+                      </div>
+                      <div class="btn-save">
+                        <button class="style-btn">Save Password</button>
+                      </div>
+                      <div class="line"></div>
+                      <div class="pw-old">
+                        <div class="title-pw-old">Password Days old :</div>
+                        <div class="detail-pw-old">0</div>
+                      </div>
+                      <div class="line"></div>
+                      <div class="last-login">
+                        <div class="title-last-login">Last Login:</div>
+                        <div class="detail-last-login">21-09-2022 22:34:45 PM</div>
+                      </div>
+<!--                      <div class="line"></div>-->
+<!--                      <div class="profile-picrure">-->
+<!--                        <div class="title-profile-picture">Profile Picture:</div>-->
+<!--                        <div class="detail-profile-picture">-->
+<!--                          <img src="https://png.pngtree.com/png-vector/20190710/ourmid/pngtree-user-vector-avatar-png-image_1541962.jpg"/>-->
+<!--                        </div>-->
+<!--                      </div>-->
+                    </div>
+                  </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    const mobileScreen = window.matchMedia("(max-width: 990px )");
+    $(document).ready(function () {
+        $(".dashboard-nav-dropdown-toggle").click(function () {
+            $(this).closest(".dashboard-nav-dropdown")
+                .toggleClass("show")
+                .find(".dashboard-nav-dropdown")
+                .removeClass("show");
+            $(this).parent()
+                .siblings()
+                .removeClass("show");
+        });
+        $(".menu-toggle").click(function () {
+            if (mobileScreen.matches) {
+                $(".dashboard-nav").toggleClass("mobile-show");
+            } else {
+                $(".dashboard").toggleClass("dashboard-compact");
+            }
+        });
+    });
+</script>
+</body>
+</html>

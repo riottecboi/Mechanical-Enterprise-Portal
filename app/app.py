@@ -93,7 +93,7 @@ async def login(form_data: UserAuth, response: Response,  db: Session = Depends(
 
 
 @app.post('/signupMultipleUserbyExcel', summary='Create/Insert User Information & Authentication by Excel file',
-          dependencies=[Security(fastapi_apikeyauth)], response_model=UserCreated, tags=["admin"])
+          dependencies=[Security(admin_apikeyauth)], response_model=UserCreated, tags=["admin"])
 async def signup_by_excel(response: Response, db: Session = Depends(get_db), file: Union[UploadFile, None] = File(..., description="Excel file upload")):
     try:
         list_pwd = []
@@ -130,7 +130,7 @@ async def signup_by_excel(response: Response, db: Session = Depends(get_db), fil
             detail="Cannot create user by Excel file",
         )
 
-@app.post('/dropTable', summary='Drop table', dependencies=[Security(fastapi_apikeyauth)], response_model=UserTable, tags=["admin"])
+@app.post('/dropTable', summary='Drop table', dependencies=[Security(admin_apikeyauth)], response_model=UserTable, tags=["admin"])
 async def drop_table(table_name: str, response: Response):
     table_status, status_code = crud.drop_table(table_name)
     response.status_code = status_code

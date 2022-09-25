@@ -180,7 +180,7 @@ h1, .h1 {
 }
 
 .dashboard-nav {
-    background: linear-gradient(to right, #ff9472, #443ea2);
+    background: linear-gradient(to right, #3f84fc, rgb(0 0 0 / 13%));
 }
 
 .dashboard-nav a {
@@ -362,7 +362,7 @@ h1, .h1 {
 
 .dashboard-toolbar {
     min-height: 84px;
-    background-color: #dfdfdf;
+    background-color: rgb(0 0 0 / 13%);
     display: -webkit-box;
     display: -webkit-flex;
     display: -ms-flexbox;

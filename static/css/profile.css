@@ -27,3 +27,126 @@
   .detail-avatar{
     width: 450px;
   }
+  /* css-profile */
+    .profile-user{
+      padding:40px
+    }
+    .title-profile{
+      font-weight:bold;
+      font-size:26px;
+      color:black;
+    }
+    .content-profile{
+      border:1px solid #dddddd;
+      border-radius:6px;
+      margin-top: 20px;
+    }
+    .sub-title{
+      font-weight:bold;
+      font-size:20px;
+      color:black;
+      margin:20px
+    }
+    .line{
+      height:1px;
+      width: 100%;
+      background-color:#dddddd;
+    }
+    .user{
+      display:flex;
+      justify-content: space-between;
+      margin:20px 20px 20px 20px;
+      align-items: center;
+    }
+    .user-name{
+      display:flex;
+      justify-content: space-between;
+      margin:20px 20px 20px 20px;
+      align-items: center;
+    }
+    .profile-app-right{
+      display:flex;
+      justify-content: space-between;
+      margin:20px 20px 20px 20px;
+      align-items: center;
+    }
+    .user-company{
+      display:flex;
+      justify-content: space-between;
+      margin:20px 20px 20px 20px;
+      align-items: center;
+    }
+    .company-right{
+      display:flex;
+      justify-content: space-between;
+      margin:20px 20px 20px 20px;
+      align-items: center;
+    }
+    .reset-password{
+      display:flex;
+      justify-content: space-between;
+      margin-right:150px;
+      margin:20px 145px 20px 20px;
+      align-items: center;
+    }
+    .input-current{
+      padding:10px;
+      border-radius:4px;
+      border: 1px solid #dddddd;
+      margin: 15px 0px;
+    }
+    .line-pw{
+      width:5px;
+      height:200px;
+      background-color:#DCDCDC;
+    }
+    .text-request{
+      font-weight:bold;
+      color: black;
+    }
+    .impor-request{
+      color:red;
+      font-weight: normal;
+    }
+    .btn-save{
+      display: flex;
+      justify-content: end;
+      margin-right: 20px;
+      margin-bottom: 20px;
+    }
+    .style-btn{
+      background-color:#191970;
+      padding: 15px;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-weight: bold;
+      font-size:18px;
+    }
+    .pw-old{
+      display:flex;
+      justify-content: space-between;
+      margin-right:150px;
+      margin:20px 300px 20px 20px;
+      align-items: center;
+    }
+    .last-login{
+      display:flex;
+      justify-content: space-between;
+      margin-right:150px;
+      margin:20px 300px 20px 20px;
+      align-items: center;
+    }
+    .profile-picrure{
+      display:flex;
+      justify-content: space-between;
+      margin-right:150px;
+      margin:20px 300px 20px 20px;
+      align-items: center;
+    }
+    .detail-profile-picture img{
+      width: 100px;
+      height: 100px;
+      border-radius: 100px;
+      border: 1px solid black;
+    }

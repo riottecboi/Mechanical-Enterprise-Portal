@@ -42,7 +42,7 @@ def login():
             session['edit'] = response['is_edit']
             session['view'] = response['is_view']
         else:
-            flash('Login failed / check your username and password again', 'error')
+            flash('Tên đăng nhập / mật khẩu sai', 'error')
             logger.info(response['message'])
             return redirect(url_for('login'))
     except Exception as e:
@@ -51,16 +51,24 @@ def login():
 
     return redirect(url_for('menu'))
 
+@app.route('/forgot', methods=['GET'])
+def forgot():
+    flash('Vui lòng liên hệ ban quản trị để được cấp lại mật khẩu', 'info')
+    return redirect(url_for('login'))
+
 @app.route('/menu', methods=['GET', 'POST'])
 def menu():
     userAdmin = session.get('admin')
+    userAPIkey = session.get('apikey')
+    userInfo = requests.get(f"{app.config['BASE_URL']}/info", params={'apikey': userAPIkey}, headers={'X-SECRET-KEY': session.get('apikey')})
     if userAdmin is True:
         getAllusers = requests.get(f"{app.config['BASE_URL']}/allUser", headers={'X-ADMIN-SECRET-KEY': session.get('apikey')})
         response = getAllusers.json()
         if getAllusers.status_code == 200:
             users = response
-
-            return render_template('dashboard.html', users=users)
+            return render_template('dashboard.html', users=users, cur_user=userInfo.json(), userType='Administrator')
+    if userAdmin is False:
+        return render_template('profile.html', cur_user=userInfo.json(), userType='User')
 
 
 @app.route('/logout', methods=['GET'])

@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>Trang chủ</title>
     <link href="{{url_for('static', filename='css/dashboard.css')}}" rel="stylesheet">
     <link href="{{url_for('static', filename='css/profile.css')}}" rel="stylesheet">
     <link href="{{url_for('static', filename='css/modal.css')}}" rel="stylesheet">
@@ -18,9 +18,9 @@
             </a>
         </header>
         <nav class="dashboard-nav-list">
-            <a href="{{url_for('menu')}}" class="dashboard-nav-item active">Trang chủ</a>
+            <a href="{{url_for('menu')}}" class="dashboard-nav-item active"><b>Trang chủ</b></a>
 <!--            <a href="#" class="dashboard-nav-item active"> dashboard</a>-->
-            <a href="#" class="dashboard-nav-item"> Upload </a>
+            <a href="#" class="dashboard-nav-item"><b> Upload </b></a>
 <!--            <div class='dashboard-nav-dropdown'><a href="#!" class="dashboard-nav-item dashboard-nav-dropdown-toggle"> Media </a>-->
 <!--                <div class='dashboard-nav-dropdown-menu'>-->
 <!--                    <a href="#"  class="dashboard-nav-dropdown-item">All</a>-->
@@ -28,7 +28,7 @@
 <!--                    <a href="#" class="dashboard-nav-dropdown-item">Images</a><a-->
 <!--                        href="#" class="dashboard-nav-dropdown-item">Video</a></div>-->
 <!--            </div>-->
-            <div class='dashboard-nav-dropdown'><a href="#!" class="dashboard-nav-item dashboard-nav-dropdown-toggle"> Users </a>
+            <div class='dashboard-nav-dropdown'><a href="#!" class="dashboard-nav-item dashboard-nav-dropdown-toggle"><b> Users </b></a>
                 <div class='dashboard-nav-dropdown-menu'><a href="#"
                                                             class="dashboard-nav-dropdown-item">All</a><a
                         href="#" class="dashboard-nav-dropdown-item">Subscribed</a><a
@@ -37,22 +37,14 @@
                         href="#" class="dashboard-nav-dropdown-item">Banned</a><a
                         href="#" class="dashboard-nav-dropdown-item">New</a></div>
             </div>
-<!--            <div class='dashboard-nav-dropdown'><a href="#!" class="dashboard-nav-item dashboard-nav-dropdown-toggle"><i-->
-<!--                    class="fas fa-money-check-alt"></i> Payments </a>-->
-<!--                <div class='dashboard-nav-dropdown-menu'><a href="#"-->
-<!--                                                            class="dashboard-nav-dropdown-item">All</a><a-->
-<!--                        href="#" class="dashboard-nav-dropdown-item">Recent</a><a-->
-<!--                        href="#" class="dashboard-nav-dropdown-item"> Projections</a>-->
-<!--                </div>-->
-<!--            </div>-->
-            <a href="#" class="dashboard-nav-item"> Settings </a>
-            <a href="#" class="dashboard-nav-item"> Profile </a>
+            <a href="#" class="dashboard-nav-item"><b> Settings </b></a>
+            <a href="#" class="dashboard-nav-item"><b> Profile </b></a>
             <div class="nav-item-divider"></div>
-            <a href="{{url_for('logout')}}" class="dashboard-nav-item"> Logout </a>
+            <a href="{{url_for('logout')}}" class="dashboard-nav-item"><b>  Đăng xuất </b></a>
         </nav>
     </div>
     <div class='dashboard-app'>
-        <header class='dashboard-toolbar'><a href="#!" class="menu-toggle">Trang chủ</a></header>
+        <header class='dashboard-toolbar'></header>
         <div class='dashboard-content'>
             <div class='container'>
                 {% for category, message in get_flashed_messages(with_categories=True) %}
@@ -65,10 +57,10 @@
                 </script>
                 <div class='card'>
                     <div class='card-header'>
-                        <h1>Welcome back Jim</h1>
+                        <h1>Hi ! <b><i>{{cur_user['fullname']}}</i></b></h1>
                     </div>
                     <div class='card-body'>
-                        <p>Your account type is: Administrator</p>
+                        <p>Your account type is: {{userType}}</p>
                     </div>
 
                 </div>
