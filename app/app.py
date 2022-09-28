@@ -46,24 +46,48 @@ async def admin_apikeyauth(db: Session = Depends(get_db), api_key_header: str = 
 async def redirect():
     return RedirectResponse(url='/docs')
 
-@app.post('/signup', summary="Create user account", dependencies=[Security(fastapi_apikeyauth)], response_model=UserOut, tags=["admin"])
-async def signup(form_data: UserAuth, response: Response, db: Session = Depends(get_db)):
+@app.post('/signup', summary="Create new user", dependencies=[Security(admin_apikeyauth)], response_model=UserOut, tags=["admin"])
+async def signup(form_data: UserAdd, response: Response, db: Session = Depends(get_db)):
     user, status_code = crud.get_user(db, form_data.username)
     if user is not None:
         logger.info("User already exist")
-        response.status_code = 200
+        response.status_code = 304
         return {'message': 'User already exist'}
-
-    userInfo = {
-        'username': form_data.username,
-        'apikey': str(uuid4()),
-        'userId': 1,
-        'hashed': hashed_password(form_data.password)
-    }
-    user, status_code = crud.create_user(db, userInfo)
+    if form_data.password == form_data.confirm_password:
+        # random_pwd = generate_random_password()
+        userAuth = {
+            'username': form_data.username,
+            'apikey': str(uuid4()),
+            'hashed': hashed_password(form_data.password)
+            # 'tmp_password': random_pwd,
+        }
+        userInfo = {
+            'msnv': form_data.username,
+            'fullname': form_data.fullname,
+            'department': form_data.department,
+            'gender': form_data.gender,
+            'vehicle': form_data.vehicle,
+            'position': form_data.position,
+            'dob': form_data.dob,
+            'sector': form_data.sector,
+            'tel': form_data.tel,
+            'id_card': form_data.id_card,
+            'ethnic': form_data.ethnic,
+            'nationality': form_data.nationality,
+            'address': form_data.address,
+            'ward': form_data.ward,
+            'district': form_data.district,
+            'city': form_data.city,
+            'target_group': form_data.target_group
+        }
+    else:
+        logger.info("Password not match")
+        response.status_code = 304
+        return {'message': 'Password not match'}
+    user, status_code = crud.create_user(db, userInfo, userAuth)
     response.status_code = status_code
     if status_code == 200:
-        u_resp = {'apikey': userInfo['apikey'], 'username': form_data.username, 'message': 'Sign up successful'}
+        u_resp = {'apikey': userAuth['apikey'], 'username': userAuth['username'], 'message': 'Sign up successful'}
     else:
         u_resp = {'message': 'Cannot create a user'}
     return u_resp

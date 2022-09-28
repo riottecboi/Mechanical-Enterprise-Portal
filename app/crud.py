@@ -4,6 +4,7 @@ from app.models import UserLogin
 from app.utils import logger
 from app.database import excel_extraction, engine
 from typing import Union
+from datetime import datetime
 
 def get_user(db: Session, username: Union[str,int]):
     try:
@@ -50,14 +51,45 @@ def get_user_info(table_name: str, username: Union[int, None], apikey: Union[str
         return {}, 400
 
 
-def create_user(db: Session, userInfo : dict):
+def create_user(db: Session, userInfo : dict, userAuth : dict):
     try:
-        user = UserLogin(msnv=userInfo['username'], userId=userInfo['userId'], apikey=userInfo['apikey'],
-                         hashed=userInfo['hashed'], authenticated=True)
-        db.add(user)
-        db.commit()
-        db.refresh(user)
-        return {'apikey': user.apikey, 'username': user.msnv}, 200
+        connection = engine.raw_connection()
+        cursor = connection.cursor()
+
+        getLatestID = f"select max(tt) from user;"
+        cursor.execute(getLatestID)
+        resp = cursor.fetchone()
+        if resp is None:
+            tt = 0
+        else:
+            tt = resp[0]
+
+        userInfo['tt'] = tt + 1
+        userInfo['dob'] = datetime.strptime(userInfo['dob'], format('%d/%m/%Y'))
+
+        s = len(userInfo.values()) * '%s,'
+        s = s[:-1]
+        val = [str(val) for val in userInfo.values()]
+
+        columns = ' ' + str.join(',', userInfo.keys()) + ' '
+        command = f"insert into user ({columns}) values ({s});"
+        cursor.execute(command, tuple(val))
+        connection.commit()
+
+        getLatestID = f"select max(tt) from user;"
+        cursor.execute(getLatestID)
+        userID = cursor.fetchone()
+        if userID is not None:
+            user = UserLogin(msnv=userAuth['username'], userId=int(userID[0]), apikey=userAuth['apikey'],
+                         hashed=userAuth['hashed'], authenticated=True)
+            db.add(user)
+            db.commit()
+            db.refresh(user)
+            return {'apikey': user.apikey, 'username': user.msnv}, 200
+        else:
+            logger.info("Cannot add new user account for {}".format(str(userInfo['username'])))
+            return None, 400
+
     except Exception as e:
         logger.info("Exception occurred: {}".format(str(e)))
         db.rollback()

@@ -11,7 +11,6 @@ class UserAuth(BaseModel):
 
 class UserInfo(BaseModel):
     tt: Union[int, None]
-    msnv: Union[int, None]
     fullname: Union[str, None]
     department: Union[str, None]
     gender: Union[str, None]
@@ -30,7 +29,7 @@ class UserInfo(BaseModel):
     target_group: Union[str, None]
 
 class UserAdd(UserInfo):
-    username: Union[int,str] = Field(..., description="Employee username")
+    username: Union[int, None]
     password: str = Field(..., min_length=5, description="Employee password")
     confirm_password: str = Field(..., min_length=5, description="Employee confirm password")
 
