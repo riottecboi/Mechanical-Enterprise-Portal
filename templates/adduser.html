@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Thêm người dùng</title>
+    <link href="{{url_for('static', filename='css/dashboard.css')}}" rel="stylesheet">
+    <link href="{{url_for('static', filename='css/profile.css')}}" rel="stylesheet">
+    <link href="{{url_for('static', filename='css/modal.css')}}" rel="stylesheet">
+    <link href="{{url_for('static', filename='css/style.css')}}" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+</head>
+<body>
+<div class='dashboard'>
+    <div class="dashboard-nav">
+        <header>
+            <a href="#" class="brand-logo">
+                <span>BRAND</span>
+            </a>
+        </header>
+        <nav class="dashboard-nav-list">
+            <a href="{{url_for('menu')}}" class="dashboard-nav-item"><b>Trang chủ</b></a>
+
+            <div class='dashboard-nav-dropdown'><a href="#!" class="dashboard-nav-item dashboard-nav-dropdown-toggle active"><b>Quản lí</b></a>
+                <div class='dashboard-nav-dropdown-menu'>
+                    <a href="{{url_for('adduser')}}" class="dashboard-nav-dropdown-item active">Thêm người dùng</a>
+                    <a href="#" class="dashboard-nav-dropdown-item">Thay đổi thông tin người dùng</a>
+                    <a href="#" class="dashboard-nav-dropdown-item">Cập nhật toàn bộ danh sách người dùng</a>
+                </div>
+            </div>
+            <a href="{{url_for('adminInfo')}}" class="dashboard-nav-item"><b> Cá nhân </b></a>
+
+            <div class="nav-item-divider"></div>
+            <a href="{{url_for('logout')}}" class="dashboard-nav-item"><b> Đăng xuất </b></a>
+        </nav>
+    </div>
+    <div class='dashboard-app'>
+        <header class='dashboard-toolbar'></header>
+        <div class='dashboard-content'>
+            <div class='container'>
+                {% for category, message in get_flashed_messages(with_categories=True) %}
+                  <div class="alert alert-{{category}}">{{ message }}</div>
+                {% endfor %}
+                <script>
+                    setTimeout(function() {
+                        $(".alert").fadeOut('fast');
+                    }, 3000);
+                </script>
+                <div class='card'>
+                    <div class='card-header'>
+                        <h1><b>Thêm người dùng mới</b></h1>
+                    </div>
+                </div>
+                <div class="profile-user">
+                    <form action="/adduser" method="post">
+                      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                      <div class="content-profile">
+    <!--                    <div class="sub-title">Trang cá nhân</div>-->
+                        <div class="line"></div>
+                        <div class="main-content">
+                          <div class="user">
+                            <div class="user-id">Mã số nhân viên :</div>
+                              <div class="user-number"><input class="form-control" name="msnv" type="text" required placeholder="Mã nhân viên / Tên đăng nhập"/></div>
+                          </div>
+                          <div class="line"></div>
+                          <div class="user-name">
+                            <div class="title-name">Họ và tên :</div>
+                            <div class="detail-name"><input class="form-control" name="fullname" type="text" placeholder="Họ và tên"/></div>
+                          </div>
+                          <div class="line"></div>
+                          <div class="profile-app-right">
+                            <div class="title-app-right">Ngày tháng năm sinh :</div>
+                            <div class="detail-name"><input type="datetime" id="date" name="dob" placeholder="Ngày/Tháng/Năm" />
+                            </div>
+                          </div>
+                          <div class="line"></div>
+                          <div class="profile-app-right">
+                            <div class="title-app-right">Giới tính :</div>
+                            <div class="detail-name">
+                                <select name="gender" style="width: 185px">
+                                  <option selected disabled>Giới tính</option>
+                                  <option value="Nam">Nam</option>
+                                  <option value="Nữ">Nữ</option>
+                                </select>
+                            </div>
+                          </div>
+                          <div class="line"></div>
+                          <div class="profile-app-right">
+                            <div class="title-app-right">Số điện thoại :</div>
+                            <div class="detail-name"><input class="form-control" name="tel" type="tel" maxlength="10" placeholder="Số điện thoại"/>
+
+                            </div>
+                          </div>
+                          <div class="line"></div>
+                          <div class="profile-app-right">
+                            <div class="title-app-right">Số CMND/CCCD :</div>
+                            <div class="detail-name"><input class="form-control" name="idcard" type="number" placeholder="CMND/CCCD"/>
+
+                            </div>
+                          </div>
+                          <div class="line"></div>
+                          <div class="profile-app-right">
+                            <div class="title-app-right">Dân tộc :</div>
+                            <div class="detail-name"><input class="form-control" name="ethnic" type="text" placeholder="Dân tộc"/>
+
+                            </div>
+                          </div>
+                          <div class="line"></div>
+                          <div class="profile-app-right">
+                            <div class="title-app-right">Quốc tịch :</div>
+                            <div class="detail-name"><input class="form-control" name="nationality" type="text" placeholder="Quốc tịch"/>
+
+                            </div>
+                          </div>
+                          <div class="line"></div>
+                          <div class="profile-app-right">
+                            <div class="title-app-right">Số nhà/ Tổ :</div>
+                            <div class="detail-name"><input class="form-control" name="address" type="text" placeholder="Số nhà/ Tổ"/>
+
+                            </div>
+                          </div>
+                          <div class="line"></div>
+                          <div class="profile-app-right">
+                            <div class="title-app-right">Xã/ Phường :</div>
+                            <div class="detail-name"><input class="form-control" name="ward" type="text" placeholder="Xã/ Phường"/>
+
+                            </div>
+                          </div>
+                          <div class="line"></div>
+                          <div class="profile-app-right">
+                            <div class="title-app-right">Quận/ Huyện :</div>
+                            <div class="detail-name"><input class="form-control" name="district" type="text" placeholder="Quận/ Huyện"/>
+
+                            </div>
+                          </div>
+                          <div class="line"></div>
+                          <div class="profile-app-right">
+                            <div class="title-app-right">Tỉnh/TP :</div>
+                            <div class="detail-name"><input class="form-control" name="city" type="text" placeholder="Tỉnh/TP"/>
+
+                            </div>
+                          </div>
+                          <div class="line"></div>
+                          <div class="profile-app-right">
+                            <div class="title-app-right">Nhóm đối tượng :</div>
+                            <div class="detail-name"><input class="form-control" name="group" type="text" placeholder="Nhóm đối tượng"/>
+
+                            </div>
+                          </div>
+                          <div class="line"></div>
+                          <div class="profile-app-right">
+                            <div class="title-app-right">Bộ phận :</div>
+                            <div class="detail-name"><input class="form-control" name="sector" type="text" placeholder="Bộ phận"/>
+
+                            </div>
+                          </div>
+
+                          <div class="line"></div>
+                          <div class="profile-app-right">
+                            <div class="title-app-right">Chức danh :</div>
+                            <div class="detail-name"><input class="form-control" name="title" type="text" placeholder="Chức danh"/>
+
+                            </div>
+                          </div>
+                          <div class="line"></div>
+                          <div class="profile-app-right">
+                            <div class="title-app-right">Vị trí công việc :</div>
+                            <div class="detail-name"><input class="form-control" name="position" type="text" placeholder="Vị trí công việc"/>
+
+                            </div>
+                          </div>
+                          <div class="line"></div>
+                          <div class="user-company">
+                            <div class="title-company">Đơn vị :</div>
+                              <div class="detail-company"><input class="form-control" name="unit" type="text" placeholder="Đơn vị"/></div>
+                          </div>
+
+                          <div class="line"></div>
+                          <div class="reset-password">
+                            <div class="title-reset">Cài đặt mật khẩu :</div>
+                            <div class="detail-option-reset">
+                              <label for="newpw">Mật khẩu : <br>
+                                <input  class="input-current" type="password" required id="newpw" name="newpw">
+                              </label>
+                              <br>
+                              <label for="re-newpw">Nhập lại mật khẩu : <br>
+                                <input  class="input-current" type="password" required id="re-newpw" name="re-newpw">
+                              </label>
+                              <br>
+                            </div>
+                            <div class="line-pw"></div>
+                            <div class="text-request">You password to must :
+                              <div class="impor-request">Be 8 to 20 characters long. <br>Contain atleast one lower-case letter.<br>Cotain atleast one upper-case letter.<br>Cotain atleast one number.<br> Coyain atleast one special character: ~! @ 3 $ % 6 & * () - =</div>
+                            </div>
+                          </div>
+                          <div class="btn-save">
+                            <button type="submit" class="style-btn">Lưu lại</button>
+                          </div>
+                          <div class="line"></div>
+    <!--                      <div class="line"></div>-->
+    <!--                      <div class="profile-picrure">-->
+    <!--                        <div class="title-profile-picture">Profile Picture:</div>-->
+    <!--                        <div class="detail-profile-picture">-->
+    <!--                          <img src="https://png.pngtree.com/png-vector/20190710/ourmid/pngtree-user-vector-avatar-png-image_1541962.jpg"/>-->
+    <!--                        </div>-->
+    <!--                      </div>-->
+                        </div>
+                      </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    const mobileScreen = window.matchMedia("(max-width: 990px )");
+    $(document).ready(function () {
+        $(".dashboard-nav-dropdown-toggle").click(function () {
+            $(this).closest(".dashboard-nav-dropdown")
+                .toggleClass("show")
+                .find(".dashboard-nav-dropdown")
+                .removeClass("show");
+            $(this).parent()
+                .siblings()
+                .removeClass("show");
+        });
+        $(".menu-toggle").click(function () {
+            if (mobileScreen.matches) {
+                $(".dashboard-nav").toggleClass("mobile-show");
+            } else {
+                $(".dashboard").toggleClass("dashboard-compact");
+            }
+        });
+    });
+</script>
+<script>
+    $(function() {
+    $( "#date" ).datepicker({ dateFormat: 'dd/mm/yy' });
+});
+</script>
+</body>
+</html>
