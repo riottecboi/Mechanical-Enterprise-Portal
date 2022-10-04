@@ -1,8 +1,9 @@
 from flask import Flask, render_template, request, redirect, url_for, session, flash, abort
-from flask_wtf.csrf import CSRFProtect
+from flask_wtf.csrf import CSRFProtect, CSRFError
 from flask_env import MetaFlaskEnv
 from datetime import timedelta
 from app.utils import logger
+from functools import wraps
 import requests
 
 app = Flask(__name__)
@@ -21,10 +22,25 @@ csrf = CSRFProtect(app)
 app.config['SESSION_COOKIE_SECURE']=True
 app.permanent_session_lifetime = timedelta(minutes=30)
 
-@app.errorhandler(403)
-def session_timeout(error):
+@app.before_request
+def before_request():
+    session.permanent = True
+    app.permanent_session_lifetime = timedelta(minutes=30)
+    session.modified = True
+
+@app.errorhandler(CSRFError)
+def handle_csrf_error():
     flash('Phiên đăng nhập hết hạn', 'warning')
-    return redirect(url_for('login'), 302)
+    return redirect(url_for('login'))
+
+def session_checker(func):
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        if session.get('apikey') is None:
+            flash('Phiên đăng nhập hết hạn', 'warning')
+            return redirect(url_for('login'))
+        return func(*args, **kwargs)
+    return wrapper
 
 @app.route('/', methods=['GET'])
 def index():
@@ -62,6 +78,7 @@ def forgot():
     return redirect(url_for('login'))
 
 @app.route('/menu', methods=['GET', 'POST'])
+@session_checker
 def menu():
     userAdmin = session.get('admin')
     userAPIkey = session.get('apikey')
@@ -78,6 +95,7 @@ def menu():
         return render_template('profile.html', cur_user=userInfo.json(), userType='User')
 
 @app.route('/adminInfo', methods=['GET'])
+@session_checker
 def adminInfo():
     userAPIkey = session.get('apikey')
     userInfo = requests.get(f"{app.config['BASE_URL']}/info", params={'apikey': userAPIkey},
@@ -85,6 +103,7 @@ def adminInfo():
     return render_template('profile.html', cur_user=userInfo.json(), userType='Administrator')
 
 @app.route('/adduser', methods=['GET','POST'])
+@session_checker
 def adduser():
     if request.method == 'POST':
         msnv = request.form.get('msnv')

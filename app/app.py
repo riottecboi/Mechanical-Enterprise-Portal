@@ -92,6 +92,34 @@ async def signup(form_data: UserAdd, response: Response, db: Session = Depends(g
         u_resp = {'message': 'Cannot create a user'}
     return u_resp
 
+@app.put('/edit', summary="Edit user information", dependencies=[Security(admin_apikeyauth)], response_model=UserOut, tags=["admin"])
+async def edit(form_data: UserAdd, response: Response, db: Session = Depends(get_db)):
+    user, status_code = crud.get_user(db, form_data.username)
+    if user is not None:
+        userInfo = {
+            'msnv': form_data.username,
+            'fullname': form_data.fullname,
+            'department': form_data.department,
+            'gender': form_data.gender,
+            'vehicle': form_data.vehicle,
+            'position': form_data.position,
+            'dob': form_data.dob,
+            'sector': form_data.sector,
+            'tel': form_data.tel,
+            'id_card': form_data.id_card,
+            'ethnic': form_data.ethnic,
+            'nationality': form_data.nationality,
+            'address': form_data.address,
+            'ward': form_data.ward,
+            'district': form_data.district,
+            'city': form_data.city,
+            'target_group': form_data.target_group
+        }
+    else:
+        logger.info("User not found")
+        response.status_code = 404
+        return {'message': 'User not found'}
+
 
 @app.post('/login', summary="Create access for user", response_model=UserOut, tags=["users"])
 async def login(form_data: UserAuth, response: Response,  db: Session = Depends(get_db)):

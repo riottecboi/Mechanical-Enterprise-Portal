@@ -11,6 +11,7 @@ class UserAuth(BaseModel):
 
 class UserInfo(BaseModel):
     tt: Union[int, None]
+    msnv: Union[str, None]
     fullname: Union[str, None]
     department: Union[str, None]
     gender: Union[str, None]

@@ -51,11 +51,35 @@ def get_user_info(table_name: str, username: Union[int, None], apikey: Union[str
         return {}, 400
 
 
-def create_user(db: Session, userInfo : dict, userAuth : dict):
+def update_user(userInfo : dict):
+    connection = engine.raw_connection()
+    cursor = connection.cursor()
     try:
-        connection = engine.raw_connection()
-        cursor = connection.cursor()
+        joinItems = []
+        userInfo['dob'] = datetime.strptime(userInfo['dob'], format('%d/%m/%Y'))
+        for col in userInfo:
+            joinItems.append(col + '=' + '%s')
+        concatenateJoinstring = ', '.join(joinItems)
+        val = [str(val) for val in userInfo.values()]
+        command = f"update user set {concatenateJoinstring} where msnv=%s"
+        val.append(userInfo['username'])
+        cursor.execute(command, tuple(val))
+        connection.commit()
+        cursor.close()
+        connection.close()
+        return {'username': userInfo['username']}, 200
 
+    except Exception as e:
+        cursor.close()
+        connection.close()
+        logger.info("Exception occurred: {}".format(str(e)))
+        return None, 400
+
+
+def create_user(db: Session, userInfo : dict, userAuth : dict):
+    connection = engine.raw_connection()
+    cursor = connection.cursor()
+    try:
         getLatestID = f"select max(tt) from user;"
         cursor.execute(getLatestID)
         resp = cursor.fetchone()
@@ -85,12 +109,18 @@ def create_user(db: Session, userInfo : dict, userAuth : dict):
             db.add(user)
             db.commit()
             db.refresh(user)
+            cursor.close()
+            connection.close()
             return {'apikey': user.apikey, 'username': user.msnv}, 200
         else:
+            cursor.close()
+            connection.close()
             logger.info("Cannot add new user account for {}".format(str(userInfo['username'])))
             return None, 400
 
     except Exception as e:
+        cursor.close()
+        connection.close()
         logger.info("Exception occurred: {}".format(str(e)))
         db.rollback()
         return None, 400
@@ -166,9 +196,9 @@ def create_user_table(excel_path: str, table_name: str, metadata):
 
 
 def drop_table(table_name: str):
+    connection = engine.raw_connection()
+    cursor = connection.cursor()
     try:
-        connection = engine.raw_connection()
-        cursor = connection.cursor()
         logger.info(f'Deleting {table_name} table')
         command = "DROP TABLE IF EXISTS {};".format(table_name)
         cursor.execute(command)
@@ -178,17 +208,19 @@ def drop_table(table_name: str):
         connection.close()
         return True, 200
     except Exception as e:
+        cursor.close()
+        connection.close()
         logger.info("Exception occurred: {}".format(str(e)))
         logger.info(f'Cannot drop {table_name} table')
         return False, 400
 
 def insert_user_table(table_name: str, data: dict, db: Session, userInfo : dict):
+    connection = engine.raw_connection()
+    cursor = connection.cursor()
     try:
         s = len(data.values()) * '%s,'
         s = s[:-1]
         val = [str(val) for val in data.values()]
-        connection = engine.raw_connection()
-        cursor = connection.cursor()
         logger.info(f'Adding data to {table_name} table')
         columns = ' ' + str.join(',', data.keys()) + ' '
         command = f"insert into {table_name} ({columns}) values ({s});"
@@ -211,15 +243,17 @@ def insert_user_table(table_name: str, data: dict, db: Session, userInfo : dict)
         return resp, 200
 
     except Exception as e:
+        cursor.close()
+        connection.close()
         logger.info("Exception occurred: {}".format(str(e)))
         logger.info(f'Cannot update data')
         return {}, 400
 
 def get_all_users(table_name: str):
+    connection = engine.raw_connection()
+    cursor = connection.cursor()
     try:
         users = []
-        connection = engine.raw_connection()
-        cursor = connection.cursor()
         logger.info('Getting all users')
         command = f"SELECT * from {table_name};"
         cursor.execute(command)
@@ -234,6 +268,8 @@ def get_all_users(table_name: str):
         connection.close()
         return users, 200
     except Exception as e:
+        cursor.close()
+        connection.close()
         logger.info("Exception occurred: {}".format(str(e)))
         logger.info(f'Cannot get data')
         return {}, 400

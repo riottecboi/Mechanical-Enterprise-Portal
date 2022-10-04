@@ -2,12 +2,14 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Trang chủ</title>
+    <title>Cá nhân</title>
     <link href="{{url_for('static', filename='css/dashboard.css')}}" rel="stylesheet">
     <link href="{{url_for('static', filename='css/profile.css')}}" rel="stylesheet">
     <link href="{{url_for('static', filename='css/modal.css')}}" rel="stylesheet">
     <link href="{{url_for('static', filename='css/style.css')}}" rel="stylesheet">
     <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 </head>
 <body>
 <div class='dashboard'>
@@ -47,7 +49,7 @@
                 </script>
                 <div class='card'>
                     <div class='card-header'>
-                        <h1>Hi ! <b><i>{{cur_user['fullname']}}</i></b></h1>
+                        <h1><b><i>{{cur_user['fullname']}}</i></b></h1>
                     </div>
                     <div class='card-body'>
                         <p>Your account type is: {{userType}}</p>
@@ -61,95 +63,105 @@
                     <div class="main-content">
                       <div class="user">
                         <div class="user-id">Mã số nhân viên :</div>
-                          <div class="user-number"> <b>{{cur_user['msnv']}}</b></b> </div>
+                          <div class="user-number"><input class="form-control" name="msnv" type="text" value="{{cur_user['msnv']}}" readonly placeholder="Mã nhân viên / Tên đăng nhập"/></div>
                       </div>
                       <div class="line"></div>
                       <div class="user-name">
                         <div class="title-name">Họ và tên :</div>
-                        <div class="detail-name"><b>{{cur_user['fullname']}}</b></div>
+                        <div class="detail-name"><input class="form-control" name="fullname" type="text" value="{{cur_user['fullname']}}" placeholder="Họ và tên"/></div>
                       </div>
                       <div class="line"></div>
                       <div class="profile-app-right">
                         <div class="title-app-right">Ngày tháng năm sinh :</div>
                         <div class="detail-name">
-                          <b>{{cur_user['dob']}}</b>
+                            <input type="datetime" id="date" name="dob" value="{{cur_user['dob']}}" placeholder="Ngày/Tháng/Năm" />
                         </div>
                       </div>
                       <div class="line"></div>
                       <div class="profile-app-right">
                         <div class="title-app-right">Giới tính :</div>
                         <div class="detail-name">
-                          <b>{{cur_user['gender']}}</b>
+                            <select name="gender" style="width: 185px">
+                                <option disabled>Giới tính</option>
+                                {% if cur_user['gender'] == 'Nam '%}
+                                <option value="Nam" selected>Nam</option>
+                                <option value="Nữ" >Nữ</option>
+                                {% endif %}
+                                {% if cur_user['gender'] == 'Nữ'%}
+                                <option value="Nam" >Nam</option>
+                                <option value="Nữ" selected>Nữ</option>
+                                {% endif %}
+                            </select>
                         </div>
                       </div>
                       <div class="line"></div>
                       <div class="profile-app-right">
                         <div class="title-app-right">Số điện thoại :</div>
                         <div class="detail-name">
-                          <b>{{cur_user['tel']}}</b>
+                            <input class="form-control" name="tel" type="tel" maxlength="10" value="{{cur_user['tel']}}" placeholder="Số điện thoại"/>
                         </div>
                       </div>
                       <div class="line"></div>
                       <div class="profile-app-right">
                         <div class="title-app-right">Số CMND/CCCD :</div>
                         <div class="detail-name">
-                          <b>{{cur_user['id_card']}}</b>
+                            <input class="form-control" name="idcard" type="number" value="{{cur_user['id_card']}}" placeholder="CMND/CCCD"/>
                         </div>
                       </div>
                       <div class="line"></div>
                       <div class="profile-app-right">
                         <div class="title-app-right">Dân tộc :</div>
                         <div class="detail-name">
-                          <b>{{cur_user['ethnic']}}</b>
+                            <input class="form-control" name="ethnic" type="text" value="{{cur_user['ethnic']}}" placeholder="Dân tộc"/>
                         </div>
                       </div>
                       <div class="line"></div>
                       <div class="profile-app-right">
                         <div class="title-app-right">Quốc tịch :</div>
                         <div class="detail-name">
-                          <b>{{cur_user['nationality']}}</b>
+                            <input class="form-control" name="nationality" type="text" value="{{cur_user['nationality']}}" placeholder="Quốc tịch"/>
                         </div>
                       </div>
                       <div class="line"></div>
                       <div class="profile-app-right">
                         <div class="title-app-right">Số nhà/ Tổ :</div>
                         <div class="detail-name">
-                          <b>{{cur_user['address']}}</b>
+                            <input class="form-control" name="address" type="text" value="{{cur_user['address']}}" placeholder="Số nhà/ Tổ"/>
                         </div>
                       </div>
                       <div class="line"></div>
                       <div class="profile-app-right">
                         <div class="title-app-right">Xã/ Phường :</div>
                         <div class="detail-name">
-                          <b>{{cur_user['ward']}}</b>
+                            <input class="form-control" name="ward" type="text" value="{{cur_user['ward']}}" placeholder="Xã/ Phường"/>
                         </div>
                       </div>
                       <div class="line"></div>
                       <div class="profile-app-right">
                         <div class="title-app-right">Quận/ Huyện :</div>
                         <div class="detail-name">
-                          <b>{{cur_user['district']}}</b>
+                            <input class="form-control" name="district" type="text" value="{{cur_user['district']}}" placeholder="Quận/ Huyện"/>
                         </div>
                       </div>
                       <div class="line"></div>
                       <div class="profile-app-right">
                         <div class="title-app-right">Tỉnh/TP :</div>
                         <div class="detail-name">
-                          <b>{{cur_user['city']}}</b>
+                            <input class="form-control" name="city" type="text" value="{{cur_user['city']}}" placeholder="Tỉnh/TP"/>
                         </div>
                       </div>
                       <div class="line"></div>
                       <div class="profile-app-right">
                         <div class="title-app-right">Nhóm đối tượng :</div>
                         <div class="detail-name">
-                          <b>{{cur_user['target_group']}}</b>
+                            <input class="form-control" name="group" type="text" value="{{cur_user['target_group']}}" placeholder="Nhóm đối tượng"/>
                         </div>
                       </div>
                       <div class="line"></div>
                       <div class="profile-app-right">
                         <div class="title-app-right">Bộ phận :</div>
                         <div class="detail-name">
-                          <b>{{cur_user['department']}}</b>
+                            <input class="form-control" name="sector" type="text" value="{{cur_user['department']}}" placeholder="Bộ phận"/>
                         </div>
                       </div>
 
@@ -157,20 +169,20 @@
                       <div class="profile-app-right">
                         <div class="title-app-right">Chức danh :</div>
                         <div class="detail-name">
-                          <b>{{cur_user['vehicle']}}</b>
+                            <input class="form-control" name="title" type="text" value="{{cur_user['vehicle']}}" placeholder="Chức danh"/>
                         </div>
                       </div>
                       <div class="line"></div>
                       <div class="profile-app-right">
                         <div class="title-app-right">Vị trí công việc :</div>
                         <div class="detail-name">
-                          <b>{{cur_user['position']}}</b>
+                            <input class="form-control" name="position" type="text" value="{{cur_user['position']}}" placeholder="Vị trí công việc"/>
                         </div>
                       </div>
                       <div class="line"></div>
                       <div class="user-company">
                         <div class="title-company">Đơn vị :</div>
-                          <div class="detail-company"><b>{{cur_user['sector']}}</b></div>
+                          <div class="detail-company"><input class="form-control" name="unit" type="text" value="{{cur_user['sector']}}" placeholder="Đơn vị"/></div>
                       </div>
 
                       <div class="line"></div>
@@ -195,7 +207,7 @@
                         </div>
                       </div>
                       <div class="btn-save">
-                        <button class="style-btn">Lưu mật kh</button>
+                        <button class="style-btn">Lưu thông tin</button>
                       </div>
                       <div class="line"></div>
 <!--                      <div class="pw-old">-->
@@ -242,6 +254,11 @@
             }
         });
     });
+</script>
+<script>
+    $(function() {
+    $( "#date" ).datepicker({ dateFormat: 'dd/mm/yy' });
+});
 </script>
 </body>
 </html>
