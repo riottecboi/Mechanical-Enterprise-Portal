@@ -2,8 +2,8 @@ from pydantic import BaseModel, Field
 from typing import Union, List, Dict
 from uuid import UUID
 
-class NotFound(BaseModel):
-    reason: str
+class RetResponse(BaseModel):
+    msg: str
 
 class UserAuth(BaseModel):
     username: Union[int, str] = Field(..., description="Employee ID")

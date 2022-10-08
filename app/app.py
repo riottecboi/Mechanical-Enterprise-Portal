@@ -239,6 +239,12 @@ async def getAllusers(response: Response):
     response.status_code = status_code
     return allUsers
 
+@app.delete('/delUser', summary='Delete user out of database', dependencies=[Security(admin_apikeyauth)], response_model=RetResponse, tags=['admin'])
+async def delUser(response: Response, username: Union[str, int]):
+    delUser, status_code = crud.del_user(username)
+    response.status_code = status_code
+    return delUser
+
 @app.get('/info', summary='Get details of currently logged in user', dependencies=[Security(fastapi_apikeyauth)], response_model=UserInfo, tags=["users"])
 async def get_me(response: Response, username: Union[int, None] = None, apikey: Union[str, None] = None):
     user, status_code = crud.get_user_info('user', username, apikey)

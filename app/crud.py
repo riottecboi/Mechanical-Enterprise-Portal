@@ -227,6 +227,28 @@ def drop_table(table_name: str):
         logger.info(f'Cannot drop {table_name} table')
         return False, 400
 
+def del_user(username):
+    connection = engine.raw_connection()
+    cursor = connection.cursor()
+    try:
+        user_command = f"delete from user where msnv = %s;"
+        cursor.execute(user_command, (username,))
+        connection.commit()
+
+        authentication_command = f"delete from authentication where msnv=%s"
+        cursor.execute(authentication_command, (username,))
+        connection.commit()
+
+        cursor.close()
+        connection.close()
+        return {'msg': 'Successful delete account'}, 200
+
+    except Exception as e:
+        cursor.close()
+        connection.close()
+        logger.info("Exception occurred: {}".format(str(e)))
+        logger.info(f'Cannot update data')
+        return {}, 400
 def insert_user_table(table_name: str, data: dict, db: Session, userInfo : dict):
     connection = engine.raw_connection()
     cursor = connection.cursor()
