@@ -19,7 +19,7 @@
         </header>
         <nav class="dashboard-nav-list">
             <a href="{{url_for('menu')}}" class="dashboard-nav-item active"><b>Trang chủ</b></a>
-            <div class='dashboard-nav-dropdown'><a href="#!" class="dashboard-nav-item dashboard-nav-dropdown-toggle"><b>Quản lí</b></a>
+            <div class='dashboard-nav-dropdown'><a href="" class="dashboard-nav-item dashboard-nav-dropdown-toggle"><b>Quản lí</b></a>
                 <div class='dashboard-nav-dropdown-menu'>
                     <a href="{{url_for('adduser')}}" class="dashboard-nav-dropdown-item">Thêm người dùng</a>
                     <a href="#" class="dashboard-nav-dropdown-item">Thay đổi thông tin người dùng</a>
@@ -79,7 +79,7 @@
                           {% for user in users %}
                             <tr>
                                 <td>{% if user['tt'] != None %}{{user['tt']}}{% endif %}</td>
-                                <td>{% if user['msnv'] != None %}{{user['msnv']}}{% endif %}</td>
+                                <td>{% if user['msnv'] != None %}<a href="{{url_for('user', id=user['msnv'])}}"> {{user['msnv']}}{% endif %}</a></td>
                                 <td>{% if user['fullname'] != None %}{{user['fullname']}}{% endif %}</td>
                                 <td>{% if user['department'] != None %}{{user['department']}}{% endif %}</td>
                                 <td>{% if user['gender'] != None %}{{user['gender']}}{% endif %}</td>

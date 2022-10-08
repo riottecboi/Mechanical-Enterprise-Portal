@@ -88,8 +88,6 @@ def menu():
     try:
         userAdmin = session.get('admin')
         userAPIkey = session.get('apikey')
-        if userAPIkey is None:
-            abort(403, description="Phiên đăng nhập hết hạn")
         userInfo = requests.get(f"{app.config['BASE_URL']}/info", params={'apikey': userAPIkey}, headers={'X-SECRET-KEY': session.get('apikey')})
         if userAdmin is True:
             getAllusers = requests.get(f"{app.config['BASE_URL']}/allUser", headers={'X-ADMIN-SECRET-KEY': session.get('apikey')})
@@ -101,6 +99,7 @@ def menu():
             return render_template('profile.html', cur_user=userInfo.json(), userType='User')
     except Exception as e:
         abort(500)
+
 @app.route('/adminInfo', methods=['GET'])
 @session_checker
 def adminInfo():
@@ -170,6 +169,7 @@ def adduser():
     except Exception as e:
         abort(500)
 @app.route('/edit', methods=['POST'])
+@session_checker
 def edit():
     try:
         msnv = request.form.get('msnv')
@@ -230,6 +230,7 @@ def edit():
         abort(500)
 
 @app.route('/user', methods=['GET'])
+@session_checker
 def user():
     if 'id' in request.args:
         userAdmin = session.get('admin')
