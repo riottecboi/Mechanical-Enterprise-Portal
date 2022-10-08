@@ -219,16 +219,31 @@ def edit():
                                  headers={'X-ADMIN-SECRET-KEY': session.get('apikey')})
         if r_signup.status_code == 200:
             flash('Cập nhật tài khoản thành công', 'info')
-            return redirect(url_for('adminInfo'))
+            return redirect(url_for('user', id=json_d['username']))
         else:
             if r_signup.status_code == 304:
                 flash('Tài khoản chưa được cập nhật', 'warning')
             else:
                 flash('Tài khoản người dùng không tồn tại', 'error')
-            return redirect(url_for('adminInfo'))
+            return redirect(url_for('user', id=json_d['username']))
     except Exception as e:
         abort(500)
 
+@app.route('/user', methods=['GET'])
+def user():
+    if 'id' in request.args:
+        userAdmin = session.get('admin')
+        if userAdmin is True:
+            type = 'Administrator'
+        else:
+            type = 'User'
+        userInfo = requests.get(f"{app.config['BASE_URL']}/info", params={'username': request.args.get('id')},
+                            headers={'X-SECRET-KEY': session.get('apikey')})
+
+        return render_template('profile.html', cur_user=userInfo.json(), userType=type)
+    else:
+        flash('Không thể lấy được thông tin người dùng', 'error')
+        return redirect(url_for('menu'))
 
 @app.route('/logout', methods=['GET'])
 def logout():
