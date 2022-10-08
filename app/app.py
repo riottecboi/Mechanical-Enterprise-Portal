@@ -92,8 +92,8 @@ async def signup(form_data: UserAdd, response: Response, db: Session = Depends(g
         u_resp = {'message': 'Cannot create a user'}
     return u_resp
 
-@app.put('/edit', summary="Edit user information", dependencies=[Security(admin_apikeyauth)], response_model=UserOut, tags=["admin"])
-async def edit(form_data: UserAdd, response: Response, db: Session = Depends(get_db)):
+@app.put('/edit', summary="Edit user information", dependencies=[Security(admin_apikeyauth)], response_model=UserUpdate, tags=["admin"])
+async def edit(form_data: UserUpdateAuth, response: Response, db: Session = Depends(get_db)):
     user, status_code = crud.get_user(db, form_data.username)
     if user is not None:
         userInfo = {
@@ -115,6 +115,30 @@ async def edit(form_data: UserAdd, response: Response, db: Session = Depends(get
             'city': form_data.city,
             'target_group': form_data.target_group
         }
+        updateUser, status_code = crud.update_user(userInfo)
+        if form_data.confirm_password != '' and form_data.password != '' and form_data.currentpw != '':
+            if not verify_password(form_data.currentpw, user.hashed):
+                response.status_code = 401
+                return {'msnv': form_data.username}
+            if form_data.confirm_password != form_data.password:
+                response.status_code = 400
+                return {'msnv': form_data.username}
+            userAuth = {
+                'username': form_data.username,
+                'hashed': hashed_password(form_data.password)
+            }
+            updateUserAuth, auth_status = crud.password_update(db, userAuth)
+            if status_code != auth_status:
+                response.status_code = auth_status
+                return {'msnv': form_data.username, 'message': 'Password not updated'}
+
+        if status_code == 200:
+            response.status_code = status_code
+            return {'msnv': form_data.username}
+        else:
+            response.status_code = 304
+            return {'msnv': form_data.username}
+
     else:
         logger.info("User not found")
         response.status_code = 404

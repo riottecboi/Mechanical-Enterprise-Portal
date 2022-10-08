@@ -1,18 +1,31 @@
 from sqlalchemy.orm import Session
 from sqlalchemy import Table, Column, Integer
 from app.models import UserLogin
-from app.utils import logger
+from app.utils import logger, hashed_password
 from app.database import excel_extraction, engine
 from typing import Union
 from datetime import datetime
 
 def get_user(db: Session, username: Union[str,int]):
     try:
-        return db.query(UserLogin).filter(UserLogin.msnv==username).one(), 200
+        u = db.query(UserLogin).filter(UserLogin.msnv==username).one()
+        db.close()
+        return u, 200
     except Exception as e:
         logger.info("Exception occurred: {}".format(str(e)))
         logger.info("User not found")
         return None, 404
+
+def password_update(db: Session, userAuth: dict):
+    try:
+        db.query(UserLogin).filter(UserLogin.msnv == userAuth['username']).update({'hashed': userAuth['hashed'], 'tmp_password': None})
+        db.commit()
+        db.close()
+        return {'username': userAuth['username']}, 200
+    except Exception as e:
+        logger.info("Exception occurred: {}".format(str(e)))
+        logger.info("Could not update password")
+        return None, 304
 
 def get_user_info(table_name: str, username: Union[int, None], apikey: Union[str, None]):
     connection = engine.raw_connection()
@@ -62,12 +75,12 @@ def update_user(userInfo : dict):
         concatenateJoinstring = ', '.join(joinItems)
         val = [str(val) for val in userInfo.values()]
         command = f"update user set {concatenateJoinstring} where msnv=%s"
-        val.append(userInfo['username'])
+        val.append(userInfo['msnv'])
         cursor.execute(command, tuple(val))
         connection.commit()
         cursor.close()
         connection.close()
-        return {'username': userInfo['username']}, 200
+        return {'username': userInfo['msnv']}, 200
 
     except Exception as e:
         cursor.close()

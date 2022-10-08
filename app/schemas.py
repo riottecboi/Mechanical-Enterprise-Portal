@@ -34,6 +34,12 @@ class UserAdd(UserInfo):
     password: str = Field(..., min_length=5, description="Employee password")
     confirm_password: str = Field(..., min_length=5, description="Employee confirm password")
 
+class UserUpdateAuth(UserInfo):
+    username: Union[int, None]
+    currentpw: str
+    password: str
+    confirm_password: str
+
 class UserVerification(BaseModel):
     apikey: Union[UUID, None]
     username: Union[int, None]
@@ -46,6 +52,8 @@ class UserVerification(BaseModel):
 class UserOut(UserVerification):
     tmpPWD: Union[str, None]
 
+class UserUpdate(BaseModel):
+    msnv: Union[str, None]
 
 class UserCreated(BaseModel):
     list_pwd: Union[List[UserOut], None] = []
