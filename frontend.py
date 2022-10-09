@@ -240,8 +240,27 @@ def user():
             type = 'User'
         userInfo = requests.get(f"{app.config['BASE_URL']}/info", params={'username': request.args.get('id')},
                             headers={'X-SECRET-KEY': session.get('apikey')})
+        if userInfo.status_code == 404:
+            flash('Không thể lấy được thông tin người dùng', 'error')
+            return redirect(url_for('menu'))
 
         return render_template('profile.html', cur_user=userInfo.json(), userType=type)
+    else:
+        flash('Không thể lấy được thông tin người dùng', 'error')
+        return redirect(url_for('menu'))
+
+@app.route('/delete', methods=['POST'])
+@session_checker
+def delete():
+    if 'id' in request.args:
+        userDel = requests.delete(f"{app.config['BASE_URL']}/delUser", params={'username': request.args.get('id')},
+                                  headers={'X-ADMIN-SECRET-KEY': session.get('apikey')})
+        if userDel.status_code == 200:
+            flash('Xóa tài khoản {} thành công'.format(request.args.get('id')), 'info')
+            return redirect(url_for('menu'))
+        else:
+            flash('Xóa tài khoản {} không thành công'.format(request.args.get('id')), 'warning')
+            return redirect(url_for('menu'))
     else:
         flash('Không thể lấy được thông tin người dùng', 'error')
         return redirect(url_for('menu'))

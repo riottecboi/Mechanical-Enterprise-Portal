@@ -15,14 +15,14 @@
 <div class='dashboard'>
     <div class="dashboard-nav">
         <header>
-            <a href="#" class="brand-logo">
-                <span>BRAND</span>
+            <a href="{{url_for('menu')}}" class="brand-logo">
+                <img style="margin-right: 20px" class="img-people" src="https://cafef1.mediacdn.vn/LOGO/SNP.png" />
             </a>
         </header>
         <nav class="dashboard-nav-list">
             <a href="{{url_for('menu')}}" class="dashboard-nav-item"><b>Trang chủ</b></a>
 
-            <div class='dashboard-nav-dropdown'><a href="" class="dashboard-nav-item dashboard-nav-dropdown-toggle active"><b>Quản lí</b></a>
+            <div class='dashboard-nav-dropdown'><a href="#" class="dashboard-nav-item dashboard-nav-dropdown-toggle active"><b>Quản lí</b></a>
                 <div class='dashboard-nav-dropdown-menu'>
                     <a href="{{url_for('adduser')}}" class="dashboard-nav-dropdown-item active">Thêm người dùng</a>
                     <a href="#" class="dashboard-nav-dropdown-item">Cập nhật toàn bộ danh sách người dùng</a>

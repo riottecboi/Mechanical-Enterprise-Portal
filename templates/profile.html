@@ -15,14 +15,14 @@
 <div class='dashboard'>
     <div class="dashboard-nav">
         <header>
-            <a href="#" class="brand-logo">
-                <span>BRAND</span>
+            <a href="{{url_for('menu')}}" class="brand-logo">
+                <img style="margin-right: 20px" class="img-people" src="https://cafef1.mediacdn.vn/LOGO/SNP.png" />
             </a>
         </header>
         <nav class="dashboard-nav-list">
             <a href="{{url_for('menu')}}" class="dashboard-nav-item {% if userType !='Administrator' %} active {% endif %}"><b>Trang chủ</b></a>
             {% if userType=='Administrator' %}
-            <div class='dashboard-nav-dropdown'><a href="" class="dashboard-nav-item dashboard-nav-dropdown-toggle"><b>Quản lí</b></a>
+            <div class='dashboard-nav-dropdown'><a href="#" class="dashboard-nav-item dashboard-nav-dropdown-toggle"><b>Quản lí</b></a>
                 <div class='dashboard-nav-dropdown-menu'>
                     <a href="{{url_for('adduser')}}" class="dashboard-nav-dropdown-item">Thêm người dùng</a>
                     <a href="#" class="dashboard-nav-dropdown-item">Cập nhật toàn bộ danh sách người dùng</a>
@@ -208,7 +208,8 @@
                         </div>
                       </div>
                       <div class="btn-save">
-                        <button type="submit" class="style-btn">Lưu thông tin</button>
+                            <button type="button" class="style-btn" style="margin-right: 50px;background-color: red;" onclick="document.getElementById('delUser').click()">Xóa tài khoản</button>
+                            <button type="submit" class="style-btn">Lưu thông tin</button>
                       </div>
                       <div class="line"></div>
 <!--                      <div class="pw-old">-->
@@ -230,6 +231,10 @@
                     </div>
                   </div>
                 </form>
+                    <form action="{{url_for('delete', id=cur_user['msnv'])}}" method="post">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                        <input id="delUser" type="submit" style="display: none">
+                    </form>
                 </div>
             </div>
         </div>
