@@ -48,7 +48,7 @@
                 </script>
                 <div class='card'>
                     <div class='card-header'>
-                        <h1><b><i>{{cur_user['fullname']}}</i></b></h1>
+                        <h1><b><i>{% if userType != 'Administrator' %}{{cur_user['fullname']}}{% endif %}Thay đổi mật khẩu</i></b></h1>
                     </div>
                     <div class='card-body'>
                         <p>Your account type is: {{userType}}</p>
@@ -56,10 +56,11 @@
 
                 </div>
                 <div class="profile-user">
-                <form action="{{url_for('edit')}}" method="post">
+                <form action="{% if userType != 'Administrator' %}{{url_for('edit')}}{% else %}{{url_for('changepassword')}}{% endif %}" method="post">
                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                   <div class="content-profile">
 <!--                    <div class="sub-title">Trang cá nhân</div>-->
+                      {% if userType != 'Administrator' %}
                     <div class="line"></div>
                     <div class="main-content">
                       <div class="user">
@@ -185,7 +186,7 @@
                         <div class="title-company">Đơn vị :</div>
                           <div class="detail-company"><input class="form-control" name="unit" type="text" value="{{cur_user['sector']}}" placeholder="Đơn vị"/></div>
                       </div>
-
+                        {% endif %}
                       <div class="line"></div>
                       <div class="reset-password">
                         <div class="title-reset">Cài đặt lại mật khẩu :</div>

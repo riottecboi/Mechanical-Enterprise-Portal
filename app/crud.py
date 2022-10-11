@@ -1,8 +1,8 @@
 from sqlalchemy.orm import Session
 from sqlalchemy import Table, Column, Integer
-from app.models import UserLogin
+from app.models import *
 from app.utils import logger, hashed_password
-from app.database import excel_extraction, engine
+from app.database import excel_extraction, engine, check_table_exist, column_creator
 from typing import Union
 from datetime import datetime
 
@@ -15,6 +15,27 @@ def get_user(db: Session, username: Union[str,int]):
         logger.info("Exception occurred: {}".format(str(e)))
         logger.info("User not found")
         return None, 404
+
+def get_admin(db: Session, username: Union[str,int]):
+    try:
+        u = db.query(Admin).filter(Admin.msnv == username).one()
+        db.close()
+        return u, 200
+    except Exception as e:
+        logger.info("Exception occurred: {}".format(str(e)))
+        logger.info("User not found")
+        return None, 404
+
+def admin_password_update(db: Session, userAuth: dict):
+    try:
+        db.query(Admin).filter(Admin.msnv == userAuth['username']).update({'hashed': userAuth['hashed']})
+        db.commit()
+        db.close()
+        return {'username': userAuth['username']}, 200
+    except Exception as e:
+        logger.info("Exception occurred: {}".format(str(e)))
+        logger.info("Could not update password")
+        return None, 304
 
 def password_update(db: Session, userAuth: dict):
     try:
@@ -51,7 +72,7 @@ def get_user_info(table_name: str, username: Union[int, None], apikey: Union[str
                     'ethnic': None, 'nationality': None, 'address': None, 'ward': None, 'district': None,
                     'city': None, 'target_group': None
                     }
-            status_code = 404
+            status_code = 200
 
         cursor.close()
         connection.close()
@@ -88,6 +109,18 @@ def update_user(userInfo : dict):
         logger.info("Exception occurred: {}".format(str(e)))
         return None, 400
 
+def create_admin_user(db: Session, userAuth : dict):
+    try:
+        user = Admin(msnv=userAuth['username'], apikey=userAuth['apikey'],
+                     hashed=userAuth['hashed'], is_admin=True, authenticated=True)
+        db.add(user)
+        db.commit()
+        db.refresh(user)
+        return {'apikey': user.apikey, 'username': user.msnv}, 200
+    except Exception as e:
+        logger.info("Cannot add new user account for {}".format(str(userAuth['username'])))
+        return None, 400
+
 
 def create_user(db: Session, userInfo : dict, userAuth : dict):
     connection = engine.raw_connection()
@@ -96,29 +129,41 @@ def create_user(db: Session, userInfo : dict, userAuth : dict):
         getLatestID = f"select max(tt) from user;"
         cursor.execute(getLatestID)
         resp = cursor.fetchone()
-        if resp is None:
+        if resp[0] is None:
             tt = 0
         else:
             tt = resp[0]
 
         userInfo['tt'] = tt + 1
-        userInfo['dob'] = datetime.strptime(userInfo['dob'], format('%d/%m/%Y'))
+
+        if userInfo['dob'] is not None:
+            userInfo['dob'] = datetime.strptime(userInfo['dob'], format('%d/%m/%Y'))
+        else:
+            userInfo.pop('dob')
+
+        if userInfo['tel'] is None:
+            userInfo['tel'] = 0
+        if userInfo['id_card'] is None:
+            userInfo['id_card'] = 0
 
         s = len(userInfo.values()) * '%s,'
         s = s[:-1]
         val = [str(val) for val in userInfo.values()]
-
         columns = ' ' + str.join(',', userInfo.keys()) + ' '
         command = f"insert into user ({columns}) values ({s});"
         cursor.execute(command, tuple(val))
         connection.commit()
-
         getLatestID = f"select max(tt) from user;"
         cursor.execute(getLatestID)
         userID = cursor.fetchone()
         if userID is not None:
-            user = UserLogin(msnv=userAuth['username'], userId=int(userID[0]), apikey=userAuth['apikey'],
-                         hashed=userAuth['hashed'], authenticated=True)
+
+            if 'is_admin' in userAuth:
+                user = Admin(msnv=userAuth['username'], apikey=userAuth['apikey'],
+                                 hashed=userAuth['hashed'], is_admin=True, authenticated=True)
+            else:
+                user = UserLogin(msnv=userAuth['username'], userId=int(userID[0]), apikey=userAuth['apikey'],
+                                 hashed=userAuth['hashed'], authenticated=True)
             db.add(user)
             db.commit()
             db.refresh(user)
@@ -162,21 +207,46 @@ def apikeyadmin(db: Session, apikey: str):
     """
     try:
         query = db.query(UserLogin).filter(UserLogin.apikey == apikey).one()
-        if query is not None:
+        if query.is_admin is True:
+            resp = {'username': query.msnv, 'admin': query.is_admin}
+            code = 200
+        else:
+            resp = None
+            code = 401
+        return resp, code
+    except Exception as e:
+        try:
+            query = db.query(Admin).filter(Admin.apikey == apikey).one()
             if query.is_admin is True:
                 resp = {'username': query.msnv, 'admin': query.is_admin}
                 code = 200
             else:
                 resp = None
                 code = 401
-        else:
-            resp = None
-            code = 401
-        return resp, code
+            return resp, code
+        except:
+            logger.info("Exception occurred: {}".format(str(e)))
+            db.rollback()
+            return None, 401
+
+def create_user_table_not_by_excel(table_name: str, metadata):
+    try:
+        insert = lambda _dict, obj, pos: {k: v for k, v in (list(_dict.items())[:pos] +
+                                                            list(obj.items()) +
+                                                            list(_dict.items())[pos:])}
+        headers_index = ['id', 'msnv', 'tt', 'sector']
+        columns = column_creator()
+        columns = insert(columns, {'id': Integer}, 0)
+        logger.info(f'Creating {table_name} table')
+        fields = (Column(colname, coltype, primary_key=True) if colname == 'id' else Column(colname, coltype,
+                index=True) if colname in headers_index else Column(colname, coltype) for colname, coltype in columns.items())
+        Table(table_name, metadata, *fields)
+        return True, 200
+
     except Exception as e:
         logger.info("Exception occurred: {}".format(str(e)))
-        db.rollback()
-        return None, 401
+        logger.info(f'Cannot create {table_name} table')
+        return False, 400
 
 def create_user_table(excel_path: str, table_name: str, metadata):
     try:
@@ -249,6 +319,7 @@ def del_user(username):
         logger.info("Exception occurred: {}".format(str(e)))
         logger.info(f'Cannot update data')
         return {}, 400
+
 def insert_user_table(table_name: str, data: dict, db: Session, userInfo : dict):
     connection = engine.raw_connection()
     cursor = connection.cursor()
@@ -295,7 +366,13 @@ def get_all_users(table_name: str):
         resp = cursor.fetchall()
         if resp is not None:
             for result in resp:
-                users.append({'tt': result[1], 'msnv': result[2], 'fullname': result[3], 'department': result[4], 'gender': result[5], 'vehicle': result[6], 'position': result[7], 'dob': result[8].strftime('%d-%m-%Y'),
+                if result[2].lower() == 'admin':
+                    continue
+                if result[8] is not None:
+                    dob = result[8].strftime('%d-%m-%Y')
+                else:
+                    dob = None
+                users.append({'tt': result[1], 'msnv': result[2], 'fullname': result[3], 'department': result[4], 'gender': result[5], 'vehicle': result[6], 'position': result[7], 'dob': dob,
                               'sector': result[9], 'tel': result[10], 'id_card': result[11], 'ethnic': result[12], 'nationality': result[13], 'address': result[14], 'ward': result[15], 'district': result[16],
                               'city': result[17], 'target_group': result[18]})
 

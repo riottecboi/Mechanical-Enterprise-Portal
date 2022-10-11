@@ -45,6 +45,35 @@ def check_table_exist(table: str) -> bool:
     is_exists = sqlalchemy.inspect(engine).has_table(table)
     return is_exists
 
+def column_creator():
+    columns = {}
+    initial_columns = {
+        'tt': int,
+        'msnv': str,
+        'fullname': str,
+        'department': str,
+        'gender': str,
+        'vehicle': str,
+        'position': str,
+        'dob': 'datetime',
+        'sector': str,
+        'tel': int,
+        'id_card': int,
+        'ethnic': str,
+        'nationality': str,
+        'address': str,
+        'ward': str,
+        'district': str,
+        'city': str,
+        'target_group': str
+    }
+    convention = {int: Integer,  str: VARCHAR(charset='utf8', collation='utf8_general_ci', length=255),
+                  'datetime': DateTime}
+    for k, v in initial_columns.items():
+        columns[k] = convention[v]
+    return columns
+
+
 def excel_extraction(path):
     columns = {}
     convention = {int: Integer, float: BigInteger, str: VARCHAR(charset='utf8', collation='utf8_general_ci', length=255), pandas.Timestamp: DateTime}

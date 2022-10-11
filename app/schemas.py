@@ -30,19 +30,19 @@ class UserInfo(BaseModel):
     target_group: Union[str, None]
 
 class UserAdd(UserInfo):
-    username: Union[int, None]
+    username: Union[str, None]
     password: str = Field(..., min_length=5, description="Employee password")
     confirm_password: str = Field(..., min_length=5, description="Employee confirm password")
 
 class UserUpdateAuth(UserInfo):
-    username: Union[int, None]
+    username: Union[int, str]
     currentpw: str
     password: str
     confirm_password: str
 
 class UserVerification(BaseModel):
     apikey: Union[UUID, None]
-    username: Union[int, None]
+    username: Union[Union[int, str], None]
     is_admin: Union[bool, None]
     is_edit: Union[bool, None]
     is_view: Union[bool, None]

@@ -1,7 +1,6 @@
 from fastapi import FastAPI, HTTPException, Depends, Response, Security, UploadFile, File
 from fastapi.responses import RedirectResponse
 from fastapi.security import APIKeyHeader
-from typing import Union
 from app.schemas import *
 from app.utils import *
 from sqlalchemy.orm import Session
@@ -92,6 +91,58 @@ async def signup(form_data: UserAdd, response: Response, db: Session = Depends(g
         u_resp = {'message': 'Cannot create a user'}
     return u_resp
 
+@app.put('/changepassword', summary='Change password', dependencies=[Security(admin_apikeyauth)], response_model=UserUpdate, tags=["admin"])
+async def changepassword(form_data: UserUpdateAuth, response: Response, db: Session = Depends(get_db)):
+    userAuth = {
+        'username': form_data.username,
+        'hashed': hashed_password(form_data.password)
+    }
+    try:
+        user, status_code = crud.get_user(db, form_data.username)
+        if user is not None:
+            if form_data.confirm_password != '' and form_data.password != '' and form_data.currentpw != '':
+                if not verify_password(form_data.currentpw, user.hashed):
+                    response.status_code = 401
+                    return {'msnv': form_data.username}
+                if form_data.confirm_password != form_data.password:
+                    response.status_code = 400
+                    return {'msnv': form_data.username}
+                updateUserAuth, auth_status = crud.password_update(db, userAuth)
+                if auth_status != 200:
+                    response.status_code = auth_status
+                    return {'msnv': form_data.username, 'message': 'Password not updated'}
+                else:
+                    response.status_code = auth_status
+                    return {'msnv': form_data.username}
+        else:
+            user, status_code = crud.get_admin(db, form_data.username)
+            if user is not None:
+                if form_data.confirm_password != '' and form_data.password != '' and form_data.currentpw != '':
+                    if not verify_password(form_data.currentpw, user.hashed):
+                        response.status_code = 401
+                        return {'msnv': form_data.username}
+                    if form_data.confirm_password != form_data.password:
+                        response.status_code = 400
+                        return {'msnv': form_data.username}
+                    updateUserAuth, auth_status = crud.admin_password_update(db, userAuth)
+                    if auth_status != 200:
+                        response.status_code = auth_status
+                        return {'msnv': form_data.username, 'message': 'Password not updated'}
+                    else:
+                        response.status_code = auth_status
+                        return {'msnv': form_data.username}
+            else:
+                logger.info("User not found")
+                response.status_code = 404
+                return {'message': 'User not found'}
+
+
+    except:
+        logger.info("User not found")
+        response.status_code = 404
+        return {'message': 'User not found'}
+
+
 @app.put('/edit', summary="Edit user information", dependencies=[Security(admin_apikeyauth)], response_model=UserUpdate, tags=["admin"])
 async def edit(form_data: UserUpdateAuth, response: Response, db: Session = Depends(get_db)):
     user, status_code = crud.get_user(db, form_data.username)
@@ -144,14 +195,72 @@ async def edit(form_data: UserUpdateAuth, response: Response, db: Session = Depe
         response.status_code = 404
         return {'message': 'User not found'}
 
+@app.post('/admin', summary='Create admin account', response_model=UserOut, tags=["admin"])
+async def admin(form_data: UserAdd, response: Response, db: Session = Depends(get_db)):
+    user, status_code = crud.get_admin(db, form_data.username)
+    if user is not None:
+        logger.info("User already exist")
+        response.status_code = 304
+        return {'message': 'User already exist'}
+    if form_data.password == form_data.confirm_password:
+        userAuth = {
+            'username': form_data.username,
+            'apikey': str(uuid4()),
+            'hashed': hashed_password(form_data.password),
+            'is_admin': True
+            # 'tmp_password': random_pwd,
+        }
+        # userInfo = {
+        #     'msnv': form_data.username,
+        #     'fullname': form_data.fullname,
+        #     'department': form_data.department,
+        #     'gender': form_data.gender,
+        #     'vehicle': form_data.vehicle,
+        #     'position': form_data.position,
+        #     'dob': form_data.dob,
+        #     'sector': form_data.sector,
+        #     'tel': form_data.tel,
+        #     'id_card': form_data.id_card,
+        #     'ethnic': form_data.ethnic,
+        #     'nationality': form_data.nationality,
+        #     'address': form_data.address,
+        #     'ward': form_data.ward,
+        #     'district': form_data.district,
+        #     'city': form_data.city,
+        #     'target_group': form_data.target_group
+        # }
+    else:
+        logger.info("Password not match")
+        response.status_code = 304
+        return {'message': 'Password not match'}
+    table_exist = check_table_exist('user')
+    if table_exist is False:
+        table_status, status_code = crud.create_user_table_not_by_excel('user', models.Base.metadata)
+        response.status_code = status_code
+        models.Base.metadata.create_all(engine)
+        if status_code != 200:
+            response.status_code = 400
+            return {'message': 'Cannot create a user'}
+    user, status_code = crud.create_admin_user(db, userAuth)
+    response.status_code = status_code
+    if status_code == 200:
+        u_resp = {'apikey': userAuth['apikey'], 'username': userAuth['username'], 'message': 'Sign up successful'}
+    else:
+        u_resp = {'message': 'Cannot create a user'}
+    return u_resp
+
+
 
 @app.post('/login', summary="Create access for user", response_model=UserOut, tags=["users"])
 async def login(form_data: UserAuth, response: Response,  db: Session = Depends(get_db)):
     user, status_code = crud.get_user(db, form_data.username)
     response.status_code = status_code
     if user is None:
-        logger.info("User not found")
-        return {'message': 'User not found'}
+        user, status_code = crud.get_admin(db, form_data.username)
+        response.status_code = status_code
+        if user is None:
+            logger.info("User not found")
+            return {'message': 'User not found'}
     if user.authenticated is not True:
         logger.info("Unauthorized user")
         response.status_code = 401
@@ -160,10 +269,14 @@ async def login(form_data: UserAuth, response: Response,  db: Session = Depends(
     hashed_pass = user.hashed
     if not verify_password(form_data.password, hashed_pass):
         logger.info("Incorrect email or password")
-        response.status_code = 400
+        response.status_code = 401
         return {'message': 'Incorrect Username or Password'}
 
     logger.info("Getting user successful")
+    if user.is_admin is True:
+        return {'apikey': user.apikey, 'username': form_data.username, 'is_admin': user.is_admin,
+                'is_edit': True,
+                'is_view': True, 'message': 'Login successful'}
     return {'apikey': user.apikey, 'username': form_data.username, 'is_admin': user.is_admin, 'is_edit': user.is_edit,
             'is_view': user.is_view, 'message': 'Login successful'}
 
@@ -250,7 +363,8 @@ async def get_me(response: Response, username: Union[int, None] = None, apikey: 
     user, status_code = crud.get_user_info('user', username, apikey)
     response.status_code = status_code
     if status_code == 200:
-        user['dob'] = user['dob'].strftime("%d/%m/%Y")
+        if user['dob'] is not None:
+            user['dob'] = user['dob'].strftime("%d/%m/%Y")
         u_resp = user
     else:
         u_resp = user

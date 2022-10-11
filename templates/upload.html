@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Thêm người dùng</title>
+    <link href="{{url_for('static', filename='css/dashboard.css')}}" rel="stylesheet">
+    <link href="{{url_for('static', filename='css/profile.css')}}" rel="stylesheet">
+    <link href="{{url_for('static', filename='css/modal.css')}}" rel="stylesheet">
+    <link href="{{url_for('static', filename='css/style.css')}}" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+</head>
+<body>
+<div class='dashboard'>
+    <div class="dashboard-nav">
+        <header>
+            <a href="{{url_for('menu')}}" class="brand-logo">
+                <img style="margin-right: 20px" class="img-people" src="https://cafef1.mediacdn.vn/LOGO/SNP.png" />
+            </a>
+        </header>
+        <nav class="dashboard-nav-list">
+            <a href="{{url_for('menu')}}" class="dashboard-nav-item"><b>Trang chủ</b></a>
+
+            <div class='dashboard-nav-dropdown'><a href="#" class="dashboard-nav-item dashboard-nav-dropdown-toggle active"><b>Quản lí</b></a>
+                <div class='dashboard-nav-dropdown-menu'>
+                    <a href="{{url_for('adduser')}}" class="dashboard-nav-dropdown-item active">Thêm người dùng</a>
+                    <a href="#" class="dashboard-nav-dropdown-item">Cập nhật toàn bộ danh sách người dùng</a>
+                </div>
+            </div>
+            <a href="{{url_for('adminInfo')}}" class="dashboard-nav-item"><b> Cá nhân </b></a>
+
+            <div class="nav-item-divider"></div>
+            <a href="{{url_for('logout')}}" class="dashboard-nav-item"><b> Đăng xuất </b></a>
+        </nav>
+    </div>
+    <div class='dashboard-app'>
+        <header class='dashboard-toolbar'></header>
+        <div class='dashboard-content'>
+            <div class='container'>
+                {% for category, message in get_flashed_messages(with_categories=True) %}
+                  <div class="alert alert-{{category}}">{{ message }}</div>
+                {% endfor %}
+                <script>
+                    setTimeout(function() {
+                        $(".alert").fadeOut('fast');
+                    }, 3000);
+                </script>
+                <div class='card'>
+                    <div class='card-header'>
+                        <h1><b>Thêm người dùng mới</b></h1>
+                    </div>
+                </div>
+                <div class="profile-user">
+                    <form method="POST" action="" enctype="multipart/form-data">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                        <p><input type="file" name="file" accept="application/vnd.ms-excel, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"></p>
+                        <p><input type="submit" value="Submit"></p>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    const mobileScreen = window.matchMedia("(max-width: 990px )");
+    $(document).ready(function () {
+        $(".dashboard-nav-dropdown-toggle").click(function () {
+            $(this).closest(".dashboard-nav-dropdown")
+                .toggleClass("show")
+                .find(".dashboard-nav-dropdown")
+                .removeClass("show");
+            $(this).parent()
+                .siblings()
+                .removeClass("show");
+        });
+        $(".menu-toggle").click(function () {
+            if (mobileScreen.matches) {
+                $(".dashboard-nav").toggleClass("mobile-show");
+            } else {
+                $(".dashboard").toggleClass("dashboard-compact");
+            }
+        });
+    });
+</script>
+</body>
+</html>

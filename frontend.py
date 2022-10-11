@@ -60,9 +60,10 @@ def login():
     username = request.form.get('username')
     password = request.form.get('password')
     try:
-        r_login = requests.post(f"{app.config['BASE_URL']}/login", json={'username': int(username), 'password': password})
+        r_login = requests.post(f"{app.config['BASE_URL']}/login", json={'username': username, 'password': password})
         response = r_login.json()
         if r_login.status_code == 200:
+            session['username'] = username
             session['apikey'] = response['apikey']
             session['admin'] = response['is_admin']
             session['edit'] = response['is_edit']
@@ -107,6 +108,30 @@ def adminInfo():
     userInfo = requests.get(f"{app.config['BASE_URL']}/info", params={'apikey': userAPIkey},
                             headers={'X-SECRET-KEY': session.get('apikey')})
     return render_template('profile.html', cur_user=userInfo.json(), userType='Administrator')
+
+@app.route('/changepassword', methods=['POST'])
+@session_checker
+def changepassword():
+    currentpw = request.form.get('currentpw')
+    newpw = request.form.get('newpw')
+    re_newpw = request.form.get('re-newpw')
+    json_d = {
+         'username': session.get('username'),
+         'currentpw': currentpw,
+         'password': newpw,
+         'confirm_password': re_newpw
+    }
+    changePWD = requests.put(f"{app.config['BASE_URL']}/changepassword", json=json_d,
+                            headers={'X-ADMIN-SECRET-KEY': session.get('apikey')})
+    if changePWD.status_code == 200:
+        flash('Cập nhật tài khoản thành công', 'info')
+        return redirect(url_for('adminInfo'))
+    else:
+        if changePWD.status_code == 304:
+            flash('Tài khoản chưa được cập nhật', 'warning')
+        else:
+            flash('Tài khoản người dùng không tồn tại', 'error')
+        return redirect(url_for('adminInfo'))
 
 @app.route('/adduser', methods=['GET','POST'])
 @session_checker
@@ -264,6 +289,20 @@ def delete():
     else:
         flash('Không thể lấy được thông tin người dùng', 'error')
         return redirect(url_for('menu'))
+
+@app.route('/excelupdate', methods=['GET','POST'])
+@session_checker
+def excelupdate():
+    if request.method == 'POST':
+        delUserTable = requests.post(f"{app.config['BASE_URL']}/dropTable",  params={'table_name': 'user'}, headers={'X-ADMIN-SECRET-KEY': session.get('apikey')})
+        if delUserTable.status_code == 200:
+            uploaded_file = request.files['file']
+            if uploaded_file.filename != '':
+                userAccounts = requests.post(f"{app.config['BASE_URL']}/signupMultipleUserbyExcel",  params={'file': uploaded_file}, headers={'X-ADMIN-SECRET-KEY': session.get('apikey')})
+                if userAccounts.status_code == 200:
+                    users = userAccounts.json()
+                    return redirect(url_for('menu'))
+    return render_template('upload.html')
 
 @app.route('/logout', methods=['GET'])
 def logout():
