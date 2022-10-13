@@ -5,7 +5,7 @@ class UserLogin(Base):
     __tablename__ = 'authentication'
     id = Column(Integer, autoincrement=True, primary_key=True)
     userId = Column(Integer)
-    msnv = Column(String(128))
+    msnv = Column(String(128), unique=True)
     apikey = Column(String(64))
     tmp_password = Column(String(128), unique=True)
     hashed = Column(String(128), unique=True)
@@ -18,7 +18,7 @@ class UserLogin(Base):
 class Admin(Base):
     __tablename__ = 'admin'
     id = Column(Integer, autoincrement=True, primary_key=True)
-    msnv = Column(String(128))
+    msnv = Column(String(128), unique=True)
     apikey = Column(String(64))
     hashed = Column(String(128), unique=True)
     is_admin = Column(Boolean, default=False)

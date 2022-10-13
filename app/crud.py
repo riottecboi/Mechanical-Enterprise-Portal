@@ -72,7 +72,7 @@ def get_user_info(table_name: str, username: Union[int, None], apikey: Union[str
                     'ethnic': None, 'nationality': None, 'address': None, 'ward': None, 'district': None,
                     'city': None, 'target_group': None
                     }
-            status_code = 200
+            status_code = 404
 
         cursor.close()
         connection.close()
@@ -297,6 +297,25 @@ def drop_table(table_name: str):
         logger.info(f'Cannot drop {table_name} table')
         return False, 400
 
+def del_admin(username):
+    connection = engine.raw_connection()
+    cursor = connection.cursor()
+    try:
+        authentication_command = f"delete from admin where msnv=%s"
+        cursor.execute(authentication_command, (username,))
+        connection.commit()
+
+        cursor.close()
+        connection.close()
+        return {'msg': 'Successful delete account'}, 200
+
+    except Exception as e:
+        cursor.close()
+        connection.close()
+        logger.info("Exception occurred: {}".format(str(e)))
+        logger.info(f'Cannot delete account')
+        return {}, 400
+
 def del_user(username):
     connection = engine.raw_connection()
     cursor = connection.cursor()
@@ -317,7 +336,7 @@ def del_user(username):
         cursor.close()
         connection.close()
         logger.info("Exception occurred: {}".format(str(e)))
-        logger.info(f'Cannot update data')
+        logger.info(f'Cannot delete account')
         return {}, 400
 
 def insert_user_table(table_name: str, data: dict, db: Session, userInfo : dict):
@@ -366,7 +385,7 @@ def get_all_users(table_name: str):
         resp = cursor.fetchall()
         if resp is not None:
             for result in resp:
-                if result[2].lower() == 'admin':
+                if str(result[2]).lower() == 'admin':
                     continue
                 if result[8] is not None:
                     dob = result[8].strftime('%d-%m-%Y')

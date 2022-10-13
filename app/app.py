@@ -41,6 +41,7 @@ async def admin_apikeyauth(db: Session = Depends(get_db), api_key_header: str = 
         )
     else:
         return check
+
 @app.get('/', response_class=RedirectResponse, include_in_schema=False)
 async def redirect():
     return RedirectResponse(url='/docs')
@@ -196,7 +197,7 @@ async def edit(form_data: UserUpdateAuth, response: Response, db: Session = Depe
         return {'message': 'User not found'}
 
 @app.post('/admin', summary='Create admin account', response_model=UserOut, tags=["admin"])
-async def admin(form_data: UserAdd, response: Response, db: Session = Depends(get_db)):
+async def admin(form_data: AdminAdd, response: Response, db: Session = Depends(get_db)):
     user, status_code = crud.get_admin(db, form_data.username)
     if user is not None:
         logger.info("User already exist")
@@ -283,20 +284,24 @@ async def login(form_data: UserAuth, response: Response,  db: Session = Depends(
 
 @app.post('/signupMultipleUserbyExcel', summary='Create/Insert User Information & Authentication by Excel file',
           dependencies=[Security(admin_apikeyauth)], response_model=UserCreated, tags=["admin"])
-async def signup_by_excel(response: Response, db: Session = Depends(get_db), file: Union[UploadFile, None] = File(..., description="Excel file upload")):
+async def signup_by_excel(filepath: str, response: Response, db: Session = Depends(get_db)):
     try:
         list_pwd = []
-        path = f"/tmp/{file.filename}"
-        with open(path, 'wb') as e:
-            e.write(file.file.read())
-        table_exist = check_table_exist('user')
-        if table_exist is False:
-            table_status, status_code = crud.create_user_table(path, 'user', models.Base.metadata)
-            response.status_code = status_code
-            models.Base.metadata.create_all(engine)
-            if status_code != 200:
-                response.status_code = 400
-                return {'list_pwd': list_pwd}
+        path = filepath
+        # with open(path, 'wb') as e:
+        #     e.write(file.file.read())
+        emptydb, status_code = crud.drop_table('user')
+        if status_code != 200:
+            response.status_code = 400
+            return {'list_pwd': list_pwd}
+        # table_exist = check_table_exist('user')
+        # if table_exist is False:
+        table_status, status_code = crud.create_user_table(path, 'user', models.Base.metadata)
+        response.status_code = status_code
+        models.Base.metadata.create_all(engine)
+        if status_code != 200:
+            response.status_code = 400
+            return {'list_pwd': list_pwd}
         datas = extracted_excel_file(path, mapping)
         logger.info('Creating new users ...')
         for data in datas:
@@ -357,6 +362,12 @@ async def delUser(response: Response, username: Union[str, int]):
     delUser, status_code = crud.del_user(username)
     response.status_code = status_code
     return delUser
+
+@app.delete('/delAdmin', summary='Delete admin out of database', dependencies=[Security(admin_apikeyauth)], response_model=RetResponse, tags=['admin'])
+async def delAdmin(response: Response, username: Union[str, int]):
+    delAdmin, status_code = crud.del_admin(username)
+    response.status_code = status_code
+    return delAdmin
 
 @app.get('/info', summary='Get details of currently logged in user', dependencies=[Security(fastapi_apikeyauth)], response_model=UserInfo, tags=["users"])
 async def get_me(response: Response, username: Union[int, None] = None, apikey: Union[str, None] = None):

@@ -34,6 +34,11 @@ class UserAdd(UserInfo):
     password: str = Field(..., min_length=5, description="Employee password")
     confirm_password: str = Field(..., min_length=5, description="Employee confirm password")
 
+class AdminAdd(BaseModel):
+    username: Union[str, None]
+    password: str = Field(..., min_length=5, description="Employee password")
+    confirm_password: str = Field(..., min_length=5, description="Employee confirm password")
+
 class UserUpdateAuth(UserInfo):
     username: Union[int, str]
     currentpw: str

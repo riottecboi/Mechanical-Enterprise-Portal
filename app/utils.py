@@ -22,7 +22,7 @@ def generate_random_password():
     return passwordString
 
 def hashed_password(password: str) -> str:
-    logger.info('Hashing for {}'.format(password))
+    logger.info('Hashing ...')
     return pwd_context.hash(password)
 
 def verify_password(password: str, hashed_password: str) -> bool:

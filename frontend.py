@@ -4,7 +4,7 @@ from flask_env import MetaFlaskEnv
 from datetime import timedelta
 from app.utils import logger
 from functools import wraps
-import requests
+import requests, os
 
 app = Flask(__name__)
 
@@ -97,17 +97,14 @@ def menu():
                 users = response
                 return render_template('dashboard.html', users=users, cur_user=userInfo.json(), userType='Administrator')
         if userAdmin is False:
-            return render_template('profile.html', cur_user=userInfo.json(), userType='User')
+            return render_template('profile.html', cur_user=userInfo.json(), userType='User', page='user')
     except Exception as e:
         abort(500)
 
 @app.route('/adminInfo', methods=['GET'])
 @session_checker
 def adminInfo():
-    userAPIkey = session.get('apikey')
-    userInfo = requests.get(f"{app.config['BASE_URL']}/info", params={'apikey': userAPIkey},
-                            headers={'X-SECRET-KEY': session.get('apikey')})
-    return render_template('profile.html', cur_user=userInfo.json(), userType='Administrator')
+    return render_template('profile.html',  userType='Administrator', page='admin')
 
 @app.route('/changepassword', methods=['POST'])
 @session_checker
@@ -268,8 +265,12 @@ def user():
         if userInfo.status_code == 404:
             flash('Không thể lấy được thông tin người dùng', 'error')
             return redirect(url_for('menu'))
-
-        return render_template('profile.html', cur_user=userInfo.json(), userType=type)
+        userinfo = userInfo.json()
+        if type == 'User':
+            if userinfo['msnv'] != session.get('username'):
+                flash('Không có quyền để xem thông tin người dùng', 'error')
+                return redirect(url_for('menu'))
+        return render_template('profile.html', cur_user=userinfo, userType=type, page='user')
     else:
         flash('Không thể lấy được thông tin người dùng', 'error')
         return redirect(url_for('menu'))
@@ -290,18 +291,28 @@ def delete():
         flash('Không thể lấy được thông tin người dùng', 'error')
         return redirect(url_for('menu'))
 
+# @app.route('/adminDelete', methods=['POST'])
+# @session_checker
+# def admindelete():
+#
+
 @app.route('/excelupdate', methods=['GET','POST'])
 @session_checker
 def excelupdate():
     if request.method == 'POST':
-        delUserTable = requests.post(f"{app.config['BASE_URL']}/dropTable",  params={'table_name': 'user'}, headers={'X-ADMIN-SECRET-KEY': session.get('apikey')})
-        if delUserTable.status_code == 200:
-            uploaded_file = request.files['file']
-            if uploaded_file.filename != '':
-                userAccounts = requests.post(f"{app.config['BASE_URL']}/signupMultipleUserbyExcel",  params={'file': uploaded_file}, headers={'X-ADMIN-SECRET-KEY': session.get('apikey')})
+        uploaded_file = request.files['file']
+        if uploaded_file.filename != '':
+            path = f"/tmp/{uploaded_file.filename}"
+            with open(path, 'wb') as e:
+                e.write(uploaded_file.read())
+            try:
+                userAccounts = requests.post(f"{app.config['BASE_URL']}/signupMultipleUserbyExcel",  params={'filepath': path}, headers={'X-ADMIN-SECRET-KEY': session.get('apikey')})
                 if userAccounts.status_code == 200:
                     users = userAccounts.json()
                     return redirect(url_for('menu'))
+            except Exception as e:
+                os.remove(path)
+                return redirect(url_for('excelupdate'))
     return render_template('upload.html')
 
 @app.route('/logout', methods=['GET'])
