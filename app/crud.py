@@ -257,6 +257,7 @@ def create_user_table(excel_path: str, table_name: str, metadata):
         columns = excel_extraction(excel_path)
         columns = insert(columns, {'id': Integer}, 0)
         logger.info(f'Creating {table_name} table')
+        metadata.clear()
         fields = (Column(colname, coltype, primary_key=True) if colname == 'id' else Column(colname, coltype, index=True) if colname in headers_index else Column(colname, coltype) for
                   colname, coltype in columns.items())
         Table(table_name, metadata, *fields)
@@ -285,6 +286,9 @@ def drop_table(table_name: str):
         logger.info(f'Deleting {table_name} table')
         command = "DROP TABLE IF EXISTS {};".format(table_name)
         cursor.execute(command)
+        connection.commit()
+        authentication_command = "DELETE FROM authentication;"
+        cursor.execute(authentication_command)
         connection.commit()
         cursor.close()
         logger.info(f'{table_name} table is deleted')
@@ -403,7 +407,7 @@ def get_all_users(table_name: str):
         connection.close()
         logger.info("Exception occurred: {}".format(str(e)))
         logger.info(f'Cannot get data')
-        return {}, 400
+        return [], 400
 
 
 # create_user_table('U')

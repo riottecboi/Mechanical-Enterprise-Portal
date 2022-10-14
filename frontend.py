@@ -93,9 +93,10 @@ def menu():
         if userAdmin is True:
             getAllusers = requests.get(f"{app.config['BASE_URL']}/allUser", headers={'X-ADMIN-SECRET-KEY': session.get('apikey')})
             response = getAllusers.json()
-            if getAllusers.status_code == 200:
-                users = response
-                return render_template('dashboard.html', users=users, cur_user=userInfo.json(), userType='Administrator')
+            # if getAllusers.status_code == 200:
+            users = response
+            return render_template('dashboard.html', users=users, cur_user=userInfo.json(), userType='Administrator')
+
         if userAdmin is False:
             return render_template('profile.html', cur_user=userInfo.json(), userType='User', page='user')
     except Exception as e:
@@ -309,11 +310,11 @@ def excelupdate():
                 userAccounts = requests.post(f"{app.config['BASE_URL']}/signupMultipleUserbyExcel",  params={'filepath': path}, headers={'X-ADMIN-SECRET-KEY': session.get('apikey')})
                 if userAccounts.status_code == 200:
                     users = userAccounts.json()
-                    return redirect(url_for('menu'))
+                    return render_template('upload.html', state='uploadResult', users=users['list_pwd'])
             except Exception as e:
                 os.remove(path)
                 return redirect(url_for('excelupdate'))
-    return render_template('upload.html')
+    return render_template('upload.html', state='upload')
 
 @app.route('/logout', methods=['GET'])
 def logout():
